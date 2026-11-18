@@ -1,0 +1,124 @@
+\begin{thebibliography}{10}
+
+\bibitem{leerna}
+Y.~Lee, S.~He, T.~Oda, G.~J. Rao, Y.~Kim, R.~Kim, H.~Kim, C.~K. Heng,
+  D.~Kowerko, H.~Li, H.~Nguyen, A.~Sampathkumar, R.~E. G{\'o}mez, M.~Chen,
+  A.~Yoshizawa, S.~Kuraishi, K.~Ogawa, S.~Zou, A.~Paullier, B.~Zhao, H.-L.
+  Chen, T.-A. Hsu, T.~Hirano, W.~Chiu, J.~G. Gezelle, D.~Haack, Y.~Hong,
+  S.~Jadhav, D.~Koirala, R.~C. Kretsch, A.~Lewicka, S.~Li, M.~Marcia,
+  J.~Piccirilli, B.~Rudolfs, Y.~Srivastava, A.-L. Steckelberg, Z.~Su, N.~Toor,
+  L.~Wang, Z.~Yang, K.~Zhang, J.~Zou, D.~Baker, S.-J. Chen, M.~Demkin,
+  A.~Favor, A.~M. Hummer, C.~K. Joshi, A.~Kryshtafovych,
+  E.~K{\"u}{\c{c}}{\"u}kbenli, Z.~Miao, J.~Moult, C.~Munley, W.~Reade, T.~Viel,
+  E.~Westhof, S.~Zhang, and R.~Das, ``Template-based {RNA} structure prediction
+  advanced through a blind code competition,'' {\em bioRxiv}, Dec. 2025.
+\newblock Preprint, not peer reviewed.
+
+\bibitem{wang2026riboseek}
+D.~Wang, J.~Jin, J.~Qiao, L.~Wei, S.~Wu, and Q.~Liu, ``Spatial-neighbour
+  encoding enables fast {RNA} {3D} structure search,'' {\em bioRxiv}, 2026.
+\newblock Preprint, posted 22 April 2026; not peer reviewed.
+
+\bibitem{ref:Shen:2024}
+T.~Shen, Z.~Hu, S.~Sun, D.~Liu, F.~Wong, J.~Wang, J.~Chen, Y.~Wang, L.~Hong,
+  J.~Xiao, L.~Zheng, T.~Krishnamoorthi, I.~King, S.~Wang, P.~Yin, J.~J.
+  Collins, and Y.~Li, ``Accurate {RNA} 3{D} structure prediction using a
+  language model-based deep learning approach,'' {\em Nature Methods}, vol.~21,
+  pp.~2287--2298, December 2024.
+
+\bibitem{ref:Li:2026}
+Y.~Li, C.~Feng, X.~Zhang, S.~Tsukiyama, D.~Feng, and Y.~Zhang, ``{DRfold2} is a
+  deep learning-based tool that enables efficient and accurate {RNA} structure
+  prediction,'' {\em PLOS Biology}, vol.~24, p.~e3003659, February 2026.
+
+\bibitem{abir2025biollmnet}
+A.~R. Abir, M.~T. Tahmid, and M.~S. Bayzid, ``{BioLLMNet}: Enhancing
+  {RNA}-interaction prediction with a specialized cross-{LLM} transformation
+  network,'' {\em Briefings in Bioinformatics}, vol.~26, no.~5, p.~bbaf549,
+  2025.
+
+\bibitem{ref:Papazoglou:2025}
+I.~Papazoglou, A.~Chatzigoulas, G.~Tsekenis, and Z.~Cournia, ``Predicting {RNA}
+  structure utilizing attention from pretrained language models,'' {\em Journal
+  of Chemical Information and Modeling}, vol.~65, pp.~6483--6498, July 2025.
+
+\bibitem{ref:Penic:2024}
+R.~J. Peni{\'c}, T.~Vla{\v{s}}i{\'c}, R.~G. Huber, Y.~Wan, and
+  M.~{\v{S}}iki{\'c}, ``{RiNALMo}: General-purpose {RNA} language models can
+  generalize well on structure prediction tasks,'' {\em Nature Communications},
+  vol.~16, p.~5671, 2025.
+
+\bibitem{ding2025inverse}
+Ding and Xiao, ``From {3D} structure to sequence: Geometric-graph perceptron \&
+  transformer networks for {RNA} inverse folding,'' in {\em Proceedings of the
+  2025 6th International Symposium on Artificial Intelligence for Medical
+  Sciences (ISAIMS '25)}, ACM, 2025.
+
+\bibitem{huang2024ribodiffusion}
+H.~Huang, Z.~Lin, D.~He, L.~Hong, and Y.~Li, ``{RiboDiffusion}: tertiary
+  structure-based {RNA} inverse folding with generative diffusion models,''
+  {\em Bioinformatics}, vol.~40, no.~Supplement\_1, pp.~i347--i356, 2024.
+
+\bibitem{joshi2025grnade}
+C.~K. Joshi, A.~R. Jamasb, R.~Vi{\~n}as~Torn{\'e}, C.~Harris, S.~V. Mathis,
+  A.~Morehead, R.~Anand, and P.~Li{\`o}, ``g{RNA}de: Geometric deep learning
+  for {3D} {RNA} inverse design,'' in {\em International Conference on Learning
+  Representations (ICLR)}, 2025.
+
+\bibitem{levine2024cell2sentence}
+D.~Levine, S.~A. Rizvi, S.~L{\'e}vy, N.~Pallikkavaliyaveetil~MohammedSheriff,
+  D.~Zhang, X.~Chen, S.~Ghadermarzi, R.~Wu, Z.~Zheng, I.~Vrkic, A.~Zhong,
+  D.~Raskin, I.~Han, A.~H. de~Oliveira~Fonseca, J.~Ortega~Caro, A.~Karbasi,
+  R.~M. Dhodapkar, and D.~van Dijk, ``{Cell2Sentence}: Teaching large language
+  models the language of biology,'' in {\em Proceedings of the 41st
+  International Conference on Machine Learning}, vol.~235 of {\em Proceedings
+  of Machine Learning Research}, pp.~27299--27325, PMLR, 2024.
+
+\bibitem{moyon2026ml}
+L.~Moyon and A.~Marsico, ``Machine learning and language models for {RNA}
+  structure prediction: Progress and perspectives,'' {\em Current Opinion in
+  Structural Biology}, vol.~100, p.~103339, 2026.
+
+\bibitem{sha2024eprna}
+C.~M. Sha, J.~Wang, and N.~V. Dokholyan, ``Predicting {3D} {RNA} structure from
+  the nucleotide sequence using {Euclidean} neural networks,'' {\em Biophysical
+  Journal}, vol.~123, no.~17, pp.~2671--2681, 2024.
+
+\bibitem{wang2023trrosettarna}
+W.~Wang, C.~Feng, R.~Han, Z.~Wang, L.~Ye, Z.~Du, H.~Wei, F.~Zhang, Z.~Peng, and
+  J.~Yang, ``{trRosettaRNA}: automated prediction of {RNA} {3D} structure with
+  transformer network,'' {\em Nature Communications}, vol.~14, p.~7266, 2023.
+
+\bibitem{wang2026trrosettarna2}
+W.~Wang, Z.~Peng, and J.~Yang, ``Predicting {RNA} {3D} structure and conformers
+  using a pre-trained secondary structure model and structure-aware
+  attention,'' {\em Nature Machine Intelligence}, vol.~8, pp.~722--734, 2026.
+
+\bibitem{steinegger2017}
+M.~Steinegger and J.~S{\"o}ding, ``{MMseqs2} enables sensitive protein sequence
+  searching for the analysis of massive data sets,'' {\em Nature
+  Biotechnology}, vol.~35, no.~11, pp.~1026--1028, 2017.
+
+\bibitem{nawrocki2013}
+E.~P. Nawrocki and S.~R. Eddy, ``Infernal 1.1: 100-fold faster {RNA} homology
+  searches,'' {\em Bioinformatics}, vol.~29, no.~22, pp.~2933--2935, 2013.
+
+\bibitem{kalvari2018}
+I.~Kalvari, J.~Argasinska, N.~Quinones-Olvera, E.~P. Nawrocki, E.~Rivas, S.~R.
+  Eddy, A.~Bateman, R.~D. Finn, and A.~I. Petrov, ``Rfam 13.0: shifting to a
+  genome-centric resource for non-coding {RNA} families,'' {\em Nucleic Acids
+  Research}, vol.~46, no.~D1, pp.~D335--D342, 2018.
+
+\bibitem{zou2024}
+S.~Zou, T.~Tao, S.~Mahbub, C.~N. Ellington, R.~J. Algayres, D.~Li, Y.~Zhuang,
+  H.~Wang, L.~Song, and E.~P. Xing, ``A large-scale foundation model for {RNA}
+  function and structure prediction,'' {\em bioRxiv}, 2024.
+\newblock Preprint, not peer reviewed.
+
+\bibitem{pantolini2024}
+L.~Pantolini, G.~Studer, J.~Pereira, J.~Durairaj, G.~Tauriello, and T.~Schwede,
+  ``Embedding-based alignment: combining protein language models with dynamic
+  programming alignment to detect structural similarities in the
+  twilight-zone,'' {\em Bioinformatics}, vol.~40, no.~1, p.~btad786, 2024.
+
+\end{thebibliography}

@@ -1,0 +1,107 @@
+\contentsline {chapter}{List of Figures}{x}{Item.3}%
+\contentsline {chapter}{List of Tables}{xi}{Item.3}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Purpose of this Document}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Intended Audience}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Definitions, Acronyms, and Abbreviations}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Conclusion}{4}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Project Vision}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Problem Domain Overview}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Problem Statement}{6}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Problem Elaboration}{6}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}The Problem in Detail}{6}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Sub-problems}{7}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Goals and Objectives}{10}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Goals}{10}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Objectives}{11}{subsection.2.4.2}%
+\contentsline {section}{\numberline {2.5}Project Scope}{12}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Sustainable Development Goal (SDG)}{15}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Constraints}{15}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Business Opportunity}{16}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Stakeholders Description/ User Characteristics}{17}{section.2.9}%
+\contentsline {subsection}{\numberline {2.9.1}Stakeholders Summary}{17}{subsection.2.9.1}%
+\contentsline {subsection}{\numberline {2.9.2}Key High-Level Goals and Problems of Stakeholders}{18}{subsection.2.9.2}%
+\contentsline {chapter}{\numberline {3}Literature Review / Related Work}{19}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Definitions, Acronyms, and Abbreviations}{19}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Detailed Literature Review}{21}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Template-based RNA structure prediction advanced through a blind code competition}{21}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}RiboSeek: Spatial-Neighbour Encoding for Fast RNA 3D Structure Search}{23}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Accurate RNA 3D structure prediction using a language model-based deep learning approach}{24}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}DRfold2 is a deep learning-based tool that enables efficient and accurate RNA structure prediction}{26}{subsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.2.5}BioLLMNet: A Unified Language-Model Framework for RNA-Interaction Prediction}{27}{subsection.3.2.5}%
+\contentsline {subsection}{\numberline {3.2.6}Predicting RNA Structure Utilizing Attention from Pretrained Language Models}{29}{subsection.3.2.6}%
+\contentsline {subsection}{\numberline {3.2.7}RiNALMo: general-purpose RNA language models can generalize well on structure prediction tasks}{30}{subsection.3.2.7}%
+\contentsline {subsection}{\numberline {3.2.8}From 3D Structure to Sequence: Geometric-Graph Perceptron and Transformer Networks for RNA Inverse Folding}{32}{subsection.3.2.8}%
+\contentsline {subsection}{\numberline {3.2.9}RiboDiffusion: tertiary structure-based RNA inverse folding with generative diffusion models}{33}{subsection.3.2.9}%
+\contentsline {subsection}{\numberline {3.2.10}gRNAde: Geometric Deep Learning for 3D RNA inverse design}{34}{subsection.3.2.10}%
+\contentsline {subsection}{\numberline {3.2.11}Cell2Sentence: Teaching Large Language Models the Language of Biology}{35}{subsection.3.2.11}%
+\contentsline {subsection}{\numberline {3.2.12}Machine learning and language models for RNA structure prediction: Progress and perspectives}{36}{subsection.3.2.12}%
+\contentsline {subsection}{\numberline {3.2.13}Predicting 3D RNA structure from the nucleotide sequence using Euclidean neural networks}{38}{subsection.3.2.13}%
+\contentsline {subsection}{\numberline {3.2.14}trRosettaRNA: Automated Prediction of RNA 3D Structure with Transformer Network}{39}{subsection.3.2.14}%
+\contentsline {subsection}{\numberline {3.2.15}Predicting RNA 3D structure and conformers using a pre-trained secondary structure model and structure-aware attention}{40}{subsection.3.2.15}%
+\contentsline {section}{\numberline {3.3}Literature Review Summary Table}{42}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Conclusion}{45}{section.3.4}%
+\contentsline {chapter}{\numberline {4}Software Requirement Specifications}{47}{chapter.4}%
+\contentsline {section}{\numberline {4.1}List of Features}{47}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Functional Requirements}{48}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Quality Attributes}{50}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Non-Functional Requirements}{51}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Use Cases}{54}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Hardware and Software Requirements}{66}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Hardware Requirements}{66}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Software Requirements}{67}{subsection.4.6.2}%
+\contentsline {section}{\numberline {4.7}Graphical User Interface}{68}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Database Design}{70}{section.4.8}%
+\contentsline {subsection}{\numberline {4.8.1}ER Diagram}{70}{subsection.4.8.1}%
+\contentsline {subsection}{\numberline {4.8.2}Data Dictionary}{70}{subsection.4.8.2}%
+\contentsline {section}{\numberline {4.9}Risk Analysis}{77}{section.4.9}%
+\contentsline {subsection}{\numberline {4.9.1}Technical Risks}{78}{subsection.4.9.1}%
+\contentsline {subsection}{\numberline {4.9.2}Data and Evaluation Risks}{78}{subsection.4.9.2}%
+\contentsline {subsection}{\numberline {4.9.3}Schedule and Resource Risks}{79}{subsection.4.9.3}%
+\contentsline {subsection}{\numberline {4.9.4}Project and Business Risks}{79}{subsection.4.9.4}%
+\contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{80}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Introduction}{80}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Framework Overview}{80}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Data and Splits}{80}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Candidate Template Generation}{81}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Template Selector}{81}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Language-Model Comparison}{82}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Model Training and Inference}{83}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Evaluation Protocol}{83}{section.5.8}%
+\contentsline {section}{\numberline {5.9}Threats to Validity}{83}{section.5.9}%
+\contentsline {section}{\numberline {5.10}Conclusion}{84}{section.5.10}%
+\contentsline {chapter}{\numberline {6}High-Level and Low-Level Design}{85}{chapter.6}%
+\contentsline {section}{\numberline {6.1}System Overview}{85}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Design Considerations}{87}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Assumptions and Dependencies}{87}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}General Constraints}{87}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Goals and Guidelines}{88}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Development Methods}{89}{subsection.6.2.4}%
+\contentsline {section}{\numberline {6.3}System Architecture}{90}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Subsystem Architecture}{91}{subsection.6.3.1}%
+\contentsline {section}{\numberline {6.4}Architectural Strategies}{92}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Fixed Backbone, Changes at Inference Only}{92}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}Common Interface for Interchangeable Components}{92}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Split Enforcement at the Data Access Layer}{93}{subsection.6.4.3}%
+\contentsline {subsection}{\numberline {6.4.4}Precomputed and Cached Labels and Features}{93}{subsection.6.4.4}%
+\contentsline {subsection}{\numberline {6.4.5}Error Detection and Recovery}{93}{subsection.6.4.5}%
+\contentsline {section}{\numberline {6.5}Domain Model/Class Diagram}{94}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Policies and Tactics}{95}{section.6.6}%
+\contentsline {chapter}{\numberline {7}Implementation and Test Cases}{97}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Implementation}{97}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Implementation of First Component/Algorithm}{97}{subsection.7.1.1}%
+\contentsline {section}{\numberline {7.2}Test case Design and description}{97}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Test Metrics}{98}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Sample Test case Metric.No.2}{98}{subsection.7.3.1}%
+\contentsline {chapter}{\numberline {8}User Manual}{99}{chapter.8}%
+\contentsline {chapter}{\numberline {9}Experimental Results and Discussion}{100}{chapter.9}%
+\contentsline {chapter}{\numberline {10}Conclusions}{101}{chapter.10}%
+\contentsline {section}{\numberline {10.1}aa}{101}{section.10.1}%
+\contentsline {subsection}{\numberline {10.1.1}dfs}{101}{subsection.10.1.1}%
+\contentsline {subsubsection}{\numberline {10.1.1.1}dsd}{101}{subsubsection.10.1.1.1}%
+\contentsline {section}{\numberline {10.2}Equations}{104}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Figures}{104}{section.10.3}%
+\contentsline {section}{\numberline {10.4}Tables}{105}{section.10.4}%
+\contentsline {section}{\numberline {10.5}Pseudo Code}{105}{section.10.5}%
+\contentsline {section}{\numberline {10.6}Code of Programming Languages}{105}{section.10.6}%
+\contentsline {section}{\numberline {10.7}Recommendations for \LaTeX }{106}{section.10.7}%

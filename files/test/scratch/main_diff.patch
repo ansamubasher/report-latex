@@ -1,0 +1,1786 @@
+﻿diff --git a/files/test/main.tex b/files/test/main.tex
+index 9db1240..f4cd027 100644
+--- a/files/test/main.tex
++++ b/files/test/main.tex
+@@ -1,36 +1,1755 @@
+-\documentclass[12pt]{article}
+-\usepackage[margin=1in]{geometry}
+-\usepackage{lipsum} % Provides dummy placeholder text
+-\usepackage{amsmath}
+-
+-\title{A Dummy LaTeX Document}
+-\author{John Doe}
++\documentclass{FastFyp}
++\usepackage{float}
++\usepackage{longtable}
++\usepackage{comment}
++\usepackage{graphicx}
++\begin{document}
++\newcommand{\supervisor}{Usman Anwer}
++\newcommand{\university}{National University of Computer and Emerging Sciences, Lahore}
++\newcommand{\fyptitle}{RNA 3D Structure Prediction }
++\newcommand{\degree}{BS}
++\newcommand{\Studentone}{Haleema Saadia     23L-0960    BSCS} 
++\newcommand{\Studenttwo}{Ansa Mubasher     23L-0580    BSCS}
++\newcommand{\Studentthree}{Alizeh Adeel     23L-0674    BSCS}
+ \date{\today}
++\renewcommand{\contentsname}{Table of Contents}
+ 
+-\begin{document}
++\makeatletter
++    \begin{titlepage}
++        \includegraphics[width=0.2\linewidth]{Figures/nulogo.png}\hfill
++        \includegraphics[width=0.2\linewidth]{Figures/fast.png}\\
++        \begin{center} 
++            {\large\bfseries \university}\\[7ex]
++            \includegraphics[width=0.4\linewidth]{Figures/fastlogo.png}\\[8ex]
++            {\huge \bfseries  \fyptitle }\\[10ex] 
++            {\Studentone}\\{\Studenttwo}\\{\Studentthree}\\[4ex] 
++            {Supervisor: \supervisor} \\ [10ex]
++            {Final Year Project}\\
++            {\large \@date}
++        \end{center}
++    \end{titlepage}    
++\makeatother
++\frontmatter
++
++\newpage \thispagestyle{empty} \mbox{} \newpage %Aatira
++
++\pagestyle{empty}  %Aatira
++\section*{\begin{center}{Anti-Plagiarism Declaration} \end{center}} %Aatira
++This is to declare that the above publication was produced under the:
++\begin{flushleft}
++\bf Title: \fyptitle
++\end{flushleft}
+ 
+-\maketitle
++is the sole contribution of the author(s), and no part hereof has been reproduced as it is the basis (cut and paste) that can be considered Plagiarism. All referenced parts have been used to argue the idea and cited properly. I/We will be responsible and liable for any consequence if a violation of this declaration is determined.
++\\[4ex]
++%% FYPTODO add the date and your names here
++Date: ..........................
+ 
++\begin{flushright}
++Name: ..........................
++\\[3ex]
++Signature: ..........................
++\\[6ex]
++Name: ..........................
++\\[3ex]
++Signature: ..........................
++\\[6ex]
++Name: ..........................
++\\[3ex]
++Signature: ..........................
++
++\end{flushright} 
++
++\vspace{5 cm} %Aatira
++ 
++\hrule %Aatira
++
++\section*{Author's Declaration}
++This states AuthorsΓÇÖ declaration that the work presented in the report is their own, and has not been submitted/presented previously to any other institution or organization.
++\pagebreak
+ \section*{Abstract}
+-\noindent
+-\lipsum[1] % Generates a sample dummy paragraph
++Our work proposes a framework for improving template discovery in RNA 3D structure prediction. Building on RNAPro, whose accuracy depends strongly on the quality of its input templates, we improve how templates are chosen at inference. Several independent search methods, covering sequence, family, embedding, secondary-structure, and motif similarity, generate candidate templates. A learned selector, trained on TM-align labels, then ranks them, with a zero-valued template as fallback when none is useful. We also compare RNA language models within the same pipeline under controlled conditions. Results will be compared against the paper's baselines and its best-template upper bound. 
++\pagebreak 
++
++\section*{Executive Summary}
++ 
++\subsection*{Background and Problem}
++ 
++Predicting the 3D structure of RNA is difficult, and accuracy depends heavily on the quality of the structural templates supplied to a prediction model. Our baseline, RNAPro (Lee et al., 2025), extends the Protenix AlphaFold 3 reproduction with multiple sequence alignments, an RNA language model, and 3D templates. Its authors found that templates are the model's most important input, that accuracy tracks the best available template, and that different template-search strategies succeed on different targets. This project addresses that gap: how to find and choose better templates for each RNA.
++ 
++\subsection*{Proposed Approach}
++ 
++We keep RNAPro's architecture and training recipe fixed, so any improvement can be attributed to better template choice rather than retraining. Our contribution is a template-selection layer applied at inference, made up of three parts:
++ 
++\begin{enumerate}
++
++
++  \item \textbf{Candidate generation.} Five independent search methods propose templates for a target RNA: sequence similarity (including Rfam/Infernal and MMseqs2), function or family lookup, language-model embedding similarity, secondary-structure-aware similarity, and motif or local template search. The first-place Kaggle method used in the paper is included as a baseline source.
++  \item \textbf{Learned selector.} Candidates are pooled and scored by a ranking or deep-learning model trained to predict each template's TM-align against the experimental structure, computed with US-align on the C1$'$ atom. Near-duplicates are removed, and the top five templates are passed to the trained model, which produces five predictions. If no candidate scores above a threshold tuned on validation data, a zero-valued template is used, as RNAPro does.
++  \item \textbf{Language-model comparison.} Under controlled conditions (same data, template pool, seeds, and schedule), we test alternative RNA language models, such as AIDO.RNA, in the slot occupied by the default RNet2, and select the best on validation data.
++\end{enumerate}
++ 
++\subsection*{Data and Evaluation}
++ 
++We use PDB structures with C1$'$ coordinates, rMSA-generated MSAs, and the Eigen dataset for the second training stage. The primary benchmark uses a temporal cutoff, as in the paper Template searches for all targets run only against structures that are legal under the split, and test targets are scored once.
++ 
++Performance is measured by TM-align (best of five predictions per target, averaged across targets), with a score above 0.45 indicating a correct global fold. We also report TM-score, C1$'$ RMSD, and per-target Z-scores. Results are compared against reference points from the paper:
++ 
++\begin{itemize}
++  \item MMseqs2-only baseline: 0.321
++  \item Best prior PDB template (upper bound): 0.679
++  \item RNAPro's own reported mean: 0.640 in the text and 0.648 in Table 2, so we will compare against our own reproduced baseline instead
++\end{itemize}
++ 
++Template-poor targets are reported separately, and confidence intervals or significance tests are used where the test set size allows.
++ 
++\subsection*{Limitations}
++ 
++The RNAPro results are retrospective, and a prospective blind test is still needed; our evaluation inherits this limitation. Because accuracy is bounded by the best available template, a selector can improve results only up to that ceiling, and we will report how close it comes. The paper's small test set (ten RNA-Puzzles targets) limits statistical power. Full retraining requires substantial compute (the paper used eight GB300 GPUs), so if it proves infeasible we will report the best available alternative and state this clearly.
++ 
++\subsection*{Expected Contribution}
++ 
++This work tests whether pooling diverse template-search methods and choosing among them with a learned selector improves RNA 3D structure prediction over single-method search, and how much of the gap to the best-template upper bound it can close.
++ 
++\pagebreak
++
++
++\pagestyle{fancy} %Aatira
++\tableofcontents
++
++\pagebreak
++\listoffigures	% comment this if there are no figures
++\addcontentsline{toc}{chapter}{List of Figures}
++\pagebreak
++\listoftables % comment this if there are no tables
++\addcontentsline{toc}{chapter}{List of Tables}
++
++\mainmatter
++
++
++\clearpage
++\chapter{Introduction}
++
++RNA molecules do far more than carry genetic messages. They regulate genes, catalyze reactions, and form the machinery of the cell, and what they do depends on how they fold in three dimensions. Experimentally determining an RNA structure is slow and expensive, so computational prediction is an active research area. Deep learning has transformed protein structure prediction, but RNA remains harder. Few experimentally solved RNA structures exist, and the molecules are flexible and often adopt several conformations.\\
++
++One recent model for this problem is RNAPro (Lee et al., 2025). It extends the Protenix reproduction of AlphaFold 3 with multiple sequence alignments, an RNA language model, and 3D structural templates. Its authors found that templates are its most important input. They also found that accuracy follows the quality of the best available template, and that different template-search methods succeed on different RNAs. No single search method works reliably for every target, and the model has no way to decide which templates to trust.\\
++
++This project addresses that gap. We keep RNAPro's architecture and training recipe fixed and change only how templates are found and chosen at inference. Several independent search methods propose candidates, and a learned selector ranks them by their expected structural accuracy. We also compare several RNA language models inside the same pipeline. Keeping the model fixed lets us attribute any improvement to better template choice rather than retraining.
++
++\section{Purpose of this Document}
++This document presents the design, methodology, and planned evaluation of our Final Year Project (FYP), which aims to improve template discovery for RNA 3D structure prediction. The project is guided by the following research questions:
++\begin{enumerate}
++    \item Does pooling template candidates from several independent search methods, and choosing among them with a learned selector, improve prediction accuracy over a single search method?
++    \item How much of the gap between the baseline and the best-template upper bound can such a selector close?
++    \item How do different RNA language models compare when placed in the same pipeline under controlled conditions?
++    \item How does performance change on template-poor RNAs, which existing benchmarks do not cover?
++\end{enumerate}
++The report describes the background and related work, the proposed framework, the data and splits, the evaluation protocol, and the system through which researchers submit RNA sequences and inspect predicted structures. It also states the limitations of the work. The main limits are that the RNAPro results we build on are retrospective, that accuracy is capped by the best available template, and that full retraining needs substantial compute.
++
++\section{Intended Audience}
++This report is written primarily for the researchers in computational biology who might use the resulting tool. It is also meant for future students or researchers who may extend it. Readers are assumed to know machine learning and software engineering. Because RNA structure prediction is a specialized area, the report explains the biological and structural concepts it relies on, and Section~\ref{sec:definitions} defines the key terms. The FYP evaluation panel of faculty members, who will assess the technical soundness, novelty, and completeness of the work, is a secondary audience.
++
++\section{Definitions, Acronyms, and Abbreviations}
++\label{sec:definitions}
++This section defines the key terms, acronyms and abbreviations used throughout this document.\\
++\textbf{SDG}: Sustainable Development Goal\\
++\textbf{FYP:} Final Year Project\\
++\textbf{MVP}: Minimum Viable Product\\
++\textbf{UI}: User Interface\\
++\textbf{UX}: User Experience\\
++\textbf{Agile}: Agile Development\\
++\textbf{SCRUM}: Scrum Development\\
++\textbf{REST}: Representational State Transfer\\
++\textbf{ORM}: Object-Relational Mapping\\
++\textbf{CRUD}: Create, Read, Update, Delete\\
++\textbf{API}: Application Programming Interface\\
++\textbf{2D}: Two-dimensional\\
++\textbf{3D}: Three-dimensional\\
++\textbf{3D Viewer}: The in-browser tool (Mol* or NGL) used to display and interact with a predicted 3D structure.\\
++\textbf{AIDO.RNA}: One of the RNA language models compared in this work.\\
++\textbf{Baseline Score}: The score of a model before the re-ranker is applied, shown next to the re-ranker score so the user can see the effect of re-ranking.\\
++\textbf{C1$'$ atom}: The carbon atom of the ribose sugar used to represent each nucleotide when comparing RNA structures.\\
++\textbf{Candidate (Top-k)}: One of the k best predicted models for a sequence, ranked by the re-ranker.\\
++\textbf{Confidence Indicator}: A simple low, medium or high flag with a short reason, which tells the user how far a predicted model can be trusted.\\
++\textbf{Dot-Bracket Notation}: A text representation of a secondary structure in which matching brackets mark paired nucleotides and dots mark unpaired nucleotides, e.g., \texttt{((((...))))}.\\
++\textbf{Job}: A single prediction request submitted by the user, which runs in the background and produces one or more predicted models.\\
++\textbf{Loop}: A group of unpaired nucleotides enclosed by, or connecting, stems.\\
++\textbf{MMseqs2}: A fast sequence search tool used as the baseline template search.\\
++\textbf{Model (3D Structure)}: A predicted three-dimensional arrangement of the atoms of an RNA molecule, generated by the prediction pipeline.\\
++\textbf{MSA}: Multiple Sequence Alignment, an alignment of related sequences that shows which positions are conserved.\\
++\textbf{PDB}: Protein Data Bank, a standard text file format for storing 3D molecular coordinates, which can be opened in external molecular tools.\\
++\textbf{Pseudoknot}: A structural element in which base pairs cross each other, so that it cannot be drawn as a simple nested structure.\\
++\textbf{Re-ranker}: The machine learning layer that scores the candidate models and reorders them so that the most likely models appear first.\\
++\textbf{Researcher}: The end user of the system, who submits RNA sequences and inspects the predicted structures.\\
++\textbf{Rfam / Infernal}: A database of RNA families and the tool used to search it by sequence and secondary structure.\\
++\textbf{RMSD}: Root Mean Square Deviation, the average distance between corresponding atoms in two structures.\\
++\textbf{RNA}: Ribonucleic Acid\\
++\textbf{RNAPro}: The baseline structure prediction model on which this work builds.\\
++\textbf{RNet2}: One of the RNA language models used or compared in this work.\\
++\textbf{Secondary Structure}: The 2D pattern of base pairs formed when an RNA sequence folds, made up of stems, loops and pseudoknots.\\
++\textbf{Selector}: The learned model that scores candidate templates and picks the most trustworthy ones for each RNA.\\
++\textbf{Stem}: A stretch of consecutive base-paired nucleotides, shown as a double-stranded region in the 2D graph.\\
++\textbf{SVG}: Scalable Vector Graphics, the image format used to draw the interactive 2D secondary structure graph.\\
++\textbf{Template}: A known RNA structure that is used as a starting point for building the prediction of a new sequence.\\
++\textbf{Template-poor target}: An RNA with no close structural match in the available database.\\
++\textbf{Temporal split}: A data split where only structures released before a target's cutoff date may be used as templates or training data.\\
++\textbf{TM-align / TM-score}: A measure of structural similarity between two 3D structures, from 0 to 1. A score above 0.45 is treated as a correct global fold.\\
++\textbf{US-align}: The tool used to compute TM-align for RNA structures.\\
++\textbf{WebGL}: Web Graphics Library, the browser technology used to render 3D graphics.\\
++
++\section{Conclusion}
++This chapter introduced the problem: RNAPro's accuracy depends on its templates, no single search method works for every RNA, and the model cannot judge which templates to trust. This project keeps RNAPro fixed and changes only how templates are found and chosen at inference. Several search methods propose candidates, and a learned selector ranks them. We also compare RNA language models in the same pipeline, so any improvement can be attributed to better template choice.\\
++The work has limits: the RNAPro results it builds on are retrospective, accuracy is closely tied to the best available template, and full retraining needs substantial compute. The remaining chapters cover the background, framework, data, evaluation, and the system for submitting RNA sequences and inspecting predictions.
++% TODO: the template asks for one line per chapter in this last paragraph, e.g. "Chapter 2 reviews ..., Chapter 3 ...". Replace the sentence above once the chapter list is final.
++
++
++\clearpage
++\chapter{Project Vision}
++
++\section{Problem Domain Overview}
++An RNA molecule's function depends on its three-dimensional structure, but determining that structure experimentally is slow and expensive. Predicting it computationally from the nucleotide sequence is therefore an important problem in computational biology. Our project works on one specific part of this problem: how to find and choose the right templates for predicting an RNA's 3D structure.
++
++A template is a previously solved structure that resembles the target RNA. Our baseline is RNAPro, which predicts structures from the sequence, multiple sequence alignments, an RNA language model and templates. Its accuracy depends strongly on the quality of the templates it receives. This makes template discovery the point where prediction quality is most often won or lost. Different template-search strategies succeed on different RNAs, and the choice of templates at inference is not learned. This is the research gap our work addresses.
++
++\textbf{What our system does.} Our work proposes a framework for improving template discovery in RNA 3D structure prediction. We implement RNAPro's architecture and training recipe and research on finding how templates are chosen at inference.
++
++\textbf{Candidate generation.} Several independent search methods, covering sequence, family, embedding, secondary-structure and motif similarity, each propose candidate templates for the target RNA. The first-place Kaggle method's search is included as a baseline source.
++
++\textbf{Learned selection.} A selector trained on TM-align labels ranks the pooled candidates and passes the top five to the model. When no candidate is useful, a zero-valued template is used as a fallback.
++
++\textbf{Language-model comparison.} We also compare RNA language models inside the same pipeline under controlled conditions, changing only the language model.
++
++\textbf{Evaluation.} We use temporal cut-offs, report template-poor targets separately, and compare results against the paper's baselines and its best-template upper bound.
++
++\textbf{How users reach it.} The framework is delivered as a web application for doctors and researchers. Users submit an RNA sequence, optionally with a dot-bracket structure, and the app validates it and runs the prediction as a background job. They view the result in an interactive 3D viewer with PDB download, see the top-ranked candidates with their scores next to the baseline, and get a low/medium/high confidence indicator. Run history, a methodology page and clear messages for failure cases such as ``no close template found'' complete the core features. Planned extras are a 2D secondary-structure viewer, a ``chat with structure'' assistant, a thermodynamic stability curve and small-molecule compatibility screening.
++
++\section{Problem Statement}
++Predicting the 3D structure of an RNA depends heavily on finding the right template, a previously solved structure that resembles the target, and template discovery is still unreliable. Different search methods succeed on different RNAs, and the choice of templates at inference is not learned. A strong model can therefore fail on a target simply because the right template was never found or never trusted. When this happens, the user receives a poor structure with no warning.
++
++This matters because template-based modeling is becoming central to RNA 3D structure prediction, a core unsolved problem in biology, since an RNA's structure determines what it does. Experimental determination is too slow and costly to keep pace. The best strategy is  a template-discovery pipeline, and ablations of the best integrated model, RNAPro, identified templates as its most important input. The share of CASP targets with usable templates grew from 25\% (CASP15) to 56\% (CASP16), and the authors expect growing structural databases to make templates more important still.
++
++This project addresses that bottleneck directly. We keep the prediction model unchanged and redesign how templates are discovered and chosen. Independent search methods covering sequence, family, embedding, secondary-structure and motif similarity pool their candidates, and a learned selector decides which of them to trust for each RNA. Because the model is held fixed, any gain can be attributed to better template choice. We also compare RNA language models under controlled conditions, and we deliver the results through a web application that reports its confidence honestly, so users know when a prediction can be trusted.
++
++\section{Problem Elaboration}
++\subsection{The Problem in Detail}
++The problem we work on is predicting the 3D structure of an RNA from its sequence, and we attack it through its main bottleneck, template discovery and selection. It has four parts.
++
++\textbf{Automated 3D prediction is not yet reliable.} Computational methods have made accurate predictions in blind challenges such as RNA-Puzzles and CASP, but the successes typically involved human experts guiding the modeling with literature, multiple sequence alignments, prior templates and intuition. Automated approaches, including many deep learning methods, have underperformed human experts. In the Stanford RNA 3D Folding competition, the top automated algorithms reached scores within statistical error of the CASP16 winners, but on the ten RNA-Puzzles targets they still ended just below the human expert team Vfold (0.491, 0.418 and 0.425 against 0.507 mean TM-align). Our system must therefore take a sequence with no human in the loop and return five predicted C1$'$ structures per target that are as accurate as possible. This is the problem we ultimately solve.
++
++\textbf{Finding templates is unreliable.} The accuracy of a prediction follows the best template available to the model. For almost every target in the competition a good template existed in the PDB: 19 of 20 targets had one with TM-align above 0.45. The difficulty is finding it. The paper reports that changing the template-search strategy raised accuracy on some targets and lowered it on others. Its embedding-based search was important for an undisclosed group I intron (PZ67) but missed templates in other cases. For the RdCas12n-sgRNA-DNA complex (9J09), every tested approach did worse than a partially homologous template that was already in the PDB (TM-align 0.511, against 0.426 for the best model). The authors link this to the functional relationship between target and template, which none of the Kaggle models used. No single search method works for all RNAs.
++
++\textbf{Choosing among templates is not learned.} RNAPro takes its inference templates from one fixed search procedure, the first-place Kaggle method. The paper's one multi-model combination picked five of fifteen predictions using a hand-built heuristic score. A heuristic cannot learn from data how reliable each search method is for a given kind of RNA. A failure here is also silent. The model produces a confident-looking structure from a poor template, and nothing tells the user.
++
++\textbf{We cannot yet judge how well this works in hard cases.} Nearly all competition targets had templates, so the paper warns that conclusions favoring template-based modeling may not hold for template-poor RNAs, which remain to be benchmarked. The paper's ten RNA-Puzzles limit statistical power, and its results are retrospective, so a prospective blind test is still needed.
++
++A further question sits alongside these. RNAPro uses one frozen RNA language model, RNet2, and other models exist, such as AIDO.RNA. How much the language model matters, once data, template pool, seeds and training schedule are held fixed, has not been isolated.
++
++\subsection{Sub-problems}
++We divide the work into seven sub-problems.
++
++\begin{enumerate}
++\item \textbf{3D structure prediction.}\\
++\textit{Problem:} turn an RNA sequence into five accurate C1$'$ 3D structures without human guidance.\\
++\textit{Our work:} use RNAPro as the fixed prediction backbone. It takes the sequence, MSA, RNet2 features and templates, and passes them through a 48-block Pairformer and a diffusion module to produce 3D coordinates. Its training recipe stays unchanged, so we reproduce the baseline and report our own number. At inference, the templates chosen by the selector each condition one prediction. We measure the result with TM-align, TM-score, C1$'$ RMSD and per-target Z-scores.\\
++\textit{How this solves it:} the paper shows that templates are RNAPro's most important input and that accuracy tracks the best available template. Prediction quality is therefore limited mainly by the templates the model receives, not by its architecture. Keeping the model fixed and improving only its template input targets that limit directly. Any gain over our reproduced baseline can be attributed to better templates and not to retraining, which makes the improvement measurable and credible.
++
++\item \textbf{Candidate template discovery.}\\
++\textit{Problem:} no single search method finds the right template for every RNA.\\
++\textit{Our work:} run multiple independent search methods and pool their results. These are sequence similarity (including sequence-plus-secondary-structure homology), function or family lookup, language-model embedding similarity, secondary-structure-aware similarity, RNA3DB and motif or local template search. The first-place Kaggle search is added as a baseline source. Each candidate records which method found it and that method's own score and rank.\\
++\textit{How this solves it:} the paper found that different search strategies succeed on different targets, so each method misses templates that another would find. Pooling means a template needs to be found by only one method to enter the candidate set, which raises the chance that the best available template is present. Function lookup and motif search cover partial and functional homology, the kind of case 9J09 shows is missed by whole-sequence search.
++
++\item \textbf{Template selection.}\\
++\textit{Problem:} pooling gives many candidates, and a hand-built rule cannot say which to trust for a given RNA.\\
++\textit{Our work:} train a selector that predicts how good each candidate is, using TM-align against the experimental structure as the label. A candidate counts as useful above a TM-align of 0.45. The selector scores every candidate, removes near-duplicates, keeps the top 5 (tentative) to match RNAPro's five predictions per target, and falls back to a zero-valued template when no candidate clears a threshold chosen on validation data.\\
++\textit{How this solves it:} the selector learns from the training data how reliable each search method is, and for which kinds of RNA. It uses evidence such as which method found a template, how many methods agree on it, and sequence and secondary-structure similarity. This replaces a fixed rule with a data-driven decision for each RNA. The fallback to a zero-valued template stops a poor candidate from being passed to the model as if it were trustworthy. The comparison with the heuristic picker shows how much of the gain comes from learning.
++
++\item \textbf{Language-model comparison.}\\
++\textit{Problem:} the effect of the RNA language model is not isolated.\\
++\textit{Our work:} test other models, such as AIDO.RNA, in the same slot as RNet2, changing only the language model and holding data, template pool, seeds and schedule fixed. Because RNAPro uses pair representations, we first check whether each alternative provides them, and we report any pair features we derive ourselves.\\
++\textit{How this solves it:} a controlled comparison changes one factor at a time, so any difference in accuracy can be attributed to the language model and nothing else. This tells us whether RNet2 is the right choice, and whether the language model matters as much as template choice. It also gives us a clear basis for selecting the best model on validation data, not on test data.
++
++\item \textbf{Evaluation on template-poor RNAs.}\\
++\textit{Problem:} template-poor RNAs are unbenchmarked, and a temporal split alone does not test them.\\
++\textit{Note:} this is an extension that we may add.\\
++\textit{Our work:} use two benchmarks, a temporal cutoff as in the paper and a harder structural-similarity split (planned: RNA3DB). Results for template-poor targets are reported separately.\\
++\textit{How this solves it:} the paper warns that its conclusions favoring template-based modeling may not generalize to RNAs without templates. A structural-similarity split removes close structural relatives from the template database, which creates a test of exactly those cases. Reporting them separately stops strong results on easy targets from hiding weak results on hard ones, so we can state honestly where the framework helps and where it does not.
++
++\item \textbf{Leakage-free and honest evaluation.}\\
++\textit{Problem:} template search over the whole PDB lets future structures leak into predictions\\
++\textit{Our work:} restrict every search, for training, validation and test targets, to structures legal under the split, and score test targets once. We report our own reproduced baseline and the distance to the upper bound, the best prior PDB template. We use confidence intervals or significance tests where the test set allows.\\
++\textit{How this solves it:} if a search could see structures released after a target, the model would appear accurate only because the answer was in the database. Restricting every search to legal structures makes the reported accuracy reflect what the system would achieve on a genuinely new RNA. Comparing against our own reproduced baseline removes the ambiguity between the paper's two figures. Measuring the distance to the upper bound shows how much of the achievable gain the selector captures, and statistical tests show whether differences are real given a small test set.
++
++\item \textbf{Usable and honest delivery.}\\
++\textit{Problem:} a poor prediction reaches the user without warning.\\
++\textit{Our work:} a web application for doctors and researchers that validates input, runs jobs in the background, displays the 3D structure with PDB download, lists the top-k candidates with their scores next to the baseline, and shows a low/medium/high confidence indicator. It handles failure cases explicitly, for example ``low confidence, no close template found.''\\
++\textit{How this solves it:} the selector's scores and the template fallback give the system evidence about how trustworthy a prediction is. The confidence indicator turns that evidence into a simple signal, so a prediction built on a weak or missing template is flagged and not presented as reliable. Showing the baseline score next to the re-ranked candidates makes the effect of our selector visible to the user. Specific error messages mean failures are never silent.
++\end{enumerate}
++
++Together these sub-problems answer the question stated in our problem statement: whether better template discovery and selection improve RNA 3D structure prediction.
++
++\section{Goals and Objectives}
++\subsection{Goals}
++\begin{itemize}
++\item \textbf{Improve RNA 3D structure prediction by getting the templates right.} Research has shown that templates are the most important ingredient in accurate prediction, so we aim to raise accuracy by changing how templates are found and chosen. We keep the prediction model's architecture and training recipe fixed, so any gain can be attributed to better template choice.
++\item \textbf{Make template discovery dependable across different kinds of RNA.} No single search method finds the right template for every RNA. We aim to build a framework in which several complementary methods work together, so the best available template is far more likely to be found.
++\item \textbf{Make template choice learned and data-driven.} We aim to replace fixed or hand-built rules with a selector that learns which candidate templates to trust for each RNA.
++\item \textbf{Understand what drives accuracy.} We aim to show which search methods help, for which kinds of RNA, and how much the choice of RNA language model matters.
++\item \textbf{Evaluate honestly, including the hard cases.} We aim to measure results without data leakage and to report template-poor RNAs separately, so we can say clearly where our framework helps and where it does not.
++\item \textbf{Put it in the hands of users.} We aim to build a web application where doctors and researchers can predict and examine RNA 3D structures and see how far to trust each one.
++\end{itemize}
++
++\subsection{Objectives}
++\textbf{Prediction}
++\begin{itemize}
++\item Train our prediction model following RNAPro's design and training recipe, and reproduce its baseline so we have our own reference number.
++\item Produce five predicted C1$'$ structures per RNA, each guided by one of the five templates our selector chooses.
++\end{itemize}
++
++\textbf{Template discovery}
++\begin{itemize}
++\item Build five complementary template-search methods: sequence similarity (including sequence-plus-secondary-structure homology), function or family lookup, language-model embedding similarity, secondary-structure-aware similarity, and motif or local template search.
++\item Use the first-place Kaggle method's search as a baseline source, so we can measure our framework against it.
++\item Record, for every candidate template, which method found it and that method's own score and rank.
++\item Test each new method on its own, to show which ones help.
++\end{itemize}
++
++\textbf{Template selection}
++\begin{itemize}
++\item Compute a TM-align label for every candidate template in the training and validation data, and treat 0.45 as the threshold for a useful template.
++\item Design and train a selector that predicts how good each candidate is, using features such as which method found it, its score and rank, how many methods agree on it, and its sequence and secondary-structure similarity to the target.
++\item Choose the top five templates per RNA after removing near-duplicates, and fall back to a zero-valued template when no candidate is good enough.
++\item Compare the learned selector against a simple heuristic picker, to measure what learning adds.
++\end{itemize}
++
++\textbf{Language models}
++\begin{itemize}
++\item Run a controlled comparison of RNA language models, including RNet2 and AIDO.RNA, changing only the language model and keeping data, templates, seeds and training schedule the same.
++\item Check whether each alternative model provides the pair-level outputs our pipeline needs, and report any pair features we derive ourselves. Choose the best model on validation data, not test data.
++\end{itemize}
++
++\textbf{Evaluation}
++\begin{itemize}
++\item Evaluate on two benchmarks: a temporal-cutoff benchmark, and a harder structural-similarity benchmark for template-poor RNAs (planned: RNA3DB).
++\item Run every template search, for training, validation and test RNAs, only against structures that were legally available at the time, and score the test set once.
++\item Report TM-align, TM-score, C1$'$ RMSD and per-target Z-scores, with confidence intervals or significance tests where the test set allows.
++\item Compare our results with the published baselines and with the best template that already existed in the PDB, to show how close the selector gets to what is achievable.
++\item Report results for template-poor RNAs separately.
++\end{itemize}
++
++\textbf{Application}
++\begin{itemize}
++\item Build a web application that accepts a sequence (pasted or uploaded, with an optional dot-bracket structure) and checks it with specific error messages.
++\item Run submissions as background jobs with visible status and pipeline stage, and keep a run history with shareable links.
++\item Show the predicted structure in an interactive 3D viewer with PDB download, and list the top-ranked candidates with their scores next to the baseline score.
++\item Show a low/medium/high confidence indicator with a short reason, and handle edge cases explicitly, such as no usable template, a failed or timed-out job, and very long sequences.
++\item Add a methodology page that explains how predictions are produced and where they can be weak.
++\item Add secondary features: a 2D secondary-structure viewer, a ``chat with structure'' assistant, a thermodynamic stability curve, and small-molecule compatibility screening.
++\end{itemize}
++
++\section{Project Scope}
++The scope of this project is to design and build our own system for predicting the 3D structure of an RNA from its sequence, centered on a new way of finding and choosing the templates that guide the prediction. Recent research showed that templates are the most important ingredient in accurate RNA structure prediction, but that no single search method finds the right one for every RNA. Inspired by this, we are building a template-discovery framework of our own. It searches for templates in several complementary ways, pools everything it finds, and uses a selector that we design and train to decide which templates to trust for each RNA. These templates then guide a structure-prediction model that we train ourselves, following the design of RNAPro \cite{leerna}. We also run our own controlled study of how different RNA language models affect the result. All of this is delivered through a web application that we build, where doctors and researchers can enter a sequence, see the predicted structure, and see how far to trust it.
++
++The system will allow users to:
++\begin{itemize}
++\item Submit an RNA sequence (pasted or uploaded), optionally with a dot-bracket secondary structure, and have it validated with specific error messages (invalid characters, length limits, mismatched structure length, unbalanced brackets)
++\item Run each submission as a background job and track its status (queued, running, finished, failed) and current pipeline stage
++\item Obtain five predicted 3D structures per sequence, guided by the templates our selector chooses
++\item View the predicted structure in an interactive 3D viewer and download it as a PDB file
++\item See the top-ranked candidate models with their scores next to the baseline score
++\item See a low/medium/high confidence indicator with a short reason, and clear messages for edge cases such as ``low confidence, no close template found''
++\item Review past jobs in a run history, reopen or re-run them, and share each run by link
++\item Read a methodology page that explains how predictions are produced and where they can be weak
++\item View an interactive 2D secondary-structure diagram, ask questions about a predicted structure through a ``chat with structure'' assistant, see a thermodynamic stability curve across temperatures, and screen small molecules for compatibility with predicted binding pockets
++\end{itemize}
++
++On the research side, we will:
++\begin{itemize}
++\item Build a template-discovery framework with five complementary search methods: sequence similarity, function or family lookup, language-model embedding similarity, secondary-structure-aware similarity, and motif or local template search. Where good tools already exist, such as MMseqs2, Rfam and Infernal, we use them as components inside our own pipeline and combine their outputs with the rest
++\item Design and train a template selector that learns from the TM-align score of each candidate which templates to trust, with a fallback for RNAs that have no useful template
++\item Train our prediction model following RNAPro's design and training recipe, and reproduce its baseline so that every gain we report comes from our template framework
++\item Run a controlled comparison of RNA language models, including RNet2 and AIDO.RNA, changing only the language model
++\item Evaluate on a temporal-cutoff benchmark and on a harder structural-similarity benchmark, report template-poor RNAs separately, and compare against the published baselines and the best-template upper bound
++\end{itemize}
++
++For the application, we will use a molecular viewer (Mol* or NGL) for 3D display, ViennaRNA for secondary-structure and thermodynamic features, and a language model fed with the predicted structure's metadata for the chat assistant. We will fix the front end, back end and job queue during design and record them in the design chapter.
++
++The project deliverables will include:
++\begin{itemize}
++\item The template-discovery and selection framework (candidate generation, selector and fallback)
++\item A trained prediction model and a reproduced baseline
++\item The results of the language-model comparison and the evaluation, including template-poor targets
++\item A functional web-based application with the features listed above
++\item Documentation of the methodology, design, implementation and evaluation, and a user manual for the application
++\end{itemize}
++
++The project scope does not include the following:
++\begin{itemize}
++\item Designing a new prediction architecture. We follow RNAPro's architecture and training recipe, so that gains can be attributed to our template framework
++\item All-atom prediction, since the system predicts one atom (C1$'$) per nucleotide, as in the Kaggle competition \cite{leerna}
++\item Large synthetic RNAs, noncanonical pairs, RNAs with multiple 3D structures, chemically modified RNAs, and nucleic-acid--protein interfaces, which the competition did not evaluate \cite{leerna}
++\item Molecular dynamics simulation, or any validated prediction of small-molecule binding. The drug-compatibility feature is a lightweight scoring dashboard only
++\item A prospective blind test of the predictions. Our evaluation is retrospective
++\item Hosting or server infrastructure beyond what development and demonstration need, and mobile applications
++\end{itemize}
++This project scope will be used as a guide throughout the development of the project.
++
++\section{Sustainable Development Goal (SDG)}
++Our project targets SDG 3: Good Health and Well-being, and it also supports SDG 9: Industry, Innovation and Infrastructure (see Figure \ref{fig:sdg} for the complete SDG list). The structure of an RNA molecule determines how it interacts with proteins, other nucleic acids and small molecules, so knowing it helps biological and pharmaceutical research. Determining RNA structures in the laboratory is slow, expensive and requires specialized expertise, which puts it out of reach for many researchers and slows the work that leads to new treatments. Our system predicts RNA 3D structures directly from sequence and tells users how far to trust each prediction, so researchers can get an early structural picture of an RNA before committing to costly experiments. By improving how the templates behind each prediction are found and chosen, we aim to make these predictions more dependable and so support research toward better health outcomes (SDG 3). The project also contributes to SDG 9 by bringing a new approach to a hard scientific problem and delivering it as an accessible web application that researchers and doctors can use without building their own computational infrastructure.
++
++\begin{figure}[!h]
++\centering
++\begin{minipage}{0.3\textwidth}
++  \centering
++  \includegraphics[width=\textwidth]{Figures/E_PRINT_03.jpg}
++\end{minipage}
++\hspace{1cm}
++\begin{minipage}{0.3\textwidth}
++  \centering
++  \includegraphics[width=\textwidth]{Figures/E_PRINT_09.jpg}
++\end{minipage}
++\caption{The United Nations Sustainable Development Goals targeted by this project: Goal 3 (Good Health and Well-being) and Goal 9 (Industry, Innovation and Infrastructure).}
++\label{fig:sdg}
++\end{figure}
++
++\section{Constraints}
++Several constraints shape what we can build and how far we can claim our results go.
++\begin{itemize}
++\item \textbf{Computing resources.} Training a structure-prediction model of this kind is heavy. The published RNAPro recipe, which we follow, used eight GB300 GPUs, and we need to verify if these resources will be available to us. If full retraining is not feasible on our hardware, we will report the best available alternative and say clearly what we used. Candidate search and selector training must also fit within the compute we can access.
++\item \textbf{Time.} We have less than one year to do the research, build the application and write the report. This limits how many search methods we can tune deeply, how many language models we can compare, and how many of the secondary features (2D viewer, chat assistant, stability curve, drug screening) we can build properly.
++\item \textbf{Data availability and fairness.} Our results depend on the quality of RNA structures, MSAs and datasets. Every template search must use only structures that were legally available for a given RNA, or the results would look better than they really are. This restricts how we build the training, validation and test data, and the test set can be used only once.
++\item \textbf{Limits of template-based prediction.} Our system can only be as good as the best template that exists. If an RNA has no useful template, no selector can create one. We can improve the choice among available templates, but not beyond what the database holds. For RNAs with few or no templates, predictions may be inaccurate.
++\item \textbf{Small and difficult test data.} The number of recent RNAs with known structures that we can use as a fair test is small, which limits how strongly we can claim a difference between methods. Our evaluation is retrospective, and we cannot run a prospective blind test within the project.
++\item \textbf{Language-model compatibility.} Our pipeline uses pair-level features from the language model. Not every RNA language model provides them, so some models may need extra work to include, or may have to be left out of the comparison.
++\item \textbf{Prediction scope.} The system predicts one atom (C1$'$) per nucleotide and does not cover chemically modified RNAs, RNAs with multiple structures, large synthetic RNAs or nucleic-acid--protein interfaces.
++\item \textbf{Usability and trust.} Predictions can be wrong. The application has to show its uncertainty clearly, for example through the confidence indicator and the ``no close template found'' message, so that users are not misled.
++\end{itemize}
++
++\section{Business Opportunity}
++Knowing the 3D structure of an RNA is valuable to biological and pharmaceutical research, but getting it experimentally is slow, expensive and requires specialized expertise. Many researchers and small laboratories cannot afford to determine structures for every RNA they care about. A tool that gives a reliable first structural picture from sequence alone, and says how far to trust it, saves time and helps researchers decide which RNAs are worth taking to the laboratory.
++
++The opportunity grows as experimental structure databases expand. Recent research found that templates are becoming more important to RNA structure prediction, because more solved structures give more chances of finding a good template for a new RNA. A system that is good at finding and choosing templates is well placed to benefit from this growth. The same ideas can also be applied to other prediction tasks that depend on finding similar known structures.
++
++What sets our project apart is where it puts the effort. Instead of only building a bigger or different prediction model, we focus on the step that decides accuracy: finding the right templates and deciding which to trust. We also design the tool around honest communication, with confidence indicators and clear failure messages, so that researchers and doctors know when a prediction is dependable. This is a useful feature in a field where automated predictions have often been unreliable.
++
++Our project is a research-driven final year project, and we are not planning a commercial launch. The opportunity is therefore mainly academic and practical. The framework and the web application could support research laboratories and pharmaceutical teams as a quick structural screening tool, and could serve as a base for future work on RNA structure prediction.
++
++\section{Stakeholders Description/ User Characteristics}
++\subsection{Stakeholders Summary}
++The main users of our system are researchers, such as computational and molecular biologists who study RNA structure and function. They need structural models for the RNAs they work with, and they are comfortable with technical terms such as sequences, dot-bracket notation and PDB files. They submit sequences, examine the predicted structures, compare the candidate models and judge how far to trust each result.
++
++The second main group is doctors and clinical researchers, who work on RNA-related questions such as therapeutic targets. They are less likely to be experts in structure prediction, so they need clear and simple explanations. They submit sequences and rely on the confidence indicator, the methodology page and the chat assistant to understand what a result means.
++
++Pharmaceutical and drug-discovery teams are secondary users. They are interested in how small molecules might interact with an RNA structure, and they use the predicted structures and the drug-compatibility screening as an early indication of which targets deserve laboratory work.
++
++Several stakeholders are involved in the project itself. Our project advisor, Mr. Usman Anwer, guides the research direction and methodology and reviews the work. The project team (Alizeh Adeel, Haleema Butt and Ansa Mubasher) designs and trains the template framework, builds the application, runs the evaluation and writes the report. FAST-NUCES, Lahore is the institution that evaluates the project as a final year project and provides the academic resources for it.
++
++\subsection{Key High-Level Goals and Problems of Stakeholders}
++\textbf{Researchers} want an accurate 3D structure from a sequence quickly, the ability to compare several candidate structures, and a clear sense of how reliable each one is. Today, experimental methods are slow and costly, and automated predictions can be wrong without any warning. It is hard for a researcher to tell whether the right template was used behind a prediction. Our system answers this by finding and choosing templates more carefully, showing the top candidates with their scores, and flagging low-confidence results.
++
++\textbf{Doctors and clinical researchers} want to understand an RNA's structure well enough to support their decisions, without needing expert knowledge of structure prediction. Raw predictions are technical and hard to interpret, they cannot easily judge when a result is trustworthy, and they often lack access to suitable tools. Our application addresses this with input validation, a plain-language methodology page, a low/medium/high confidence indicator with a short reason, and an assistant they can ask questions about the predicted structure.
++
++\textbf{Pharmaceutical and drug-discovery teams} want an early view of an RNA's structure and its possible binding pockets, so they can decide which targets are worth taking to the laboratory. Determining structures experimentally for many candidate RNAs is too slow and expensive, and weak predictions waste effort. The predicted structure, the pocket information and the drug-compatibility score give them a quick first screen, while the confidence indicator warns them when a prediction should not be relied on.
++
++\textbf{Our project advisor} wants to see a well-founded research contribution with an honest, reproducible evaluation. The risk is results that are overstated, leak test data or cannot be repeated. This is why we restrict every template search to structures that were legally available, score the test set only once, report template-poor RNAs separately and compare against our own reproduced baseline.
++
++\textbf{We, the project team,} want to complete a working framework, evaluation and application within the time and compute available. 
++
++\textbf{The university} expects a complete, well-documented project that meets academic standards, with a working demonstration and an evaluation that can be checked. Our documentation, user manual and results chapters are meant to meet this.
++
++\clearpage
++
++\chapter{Literature Review / Related Work}
++
++\section{Definitions, Acronyms, and Abbreviations}
++ 
++
++Wang et al.~\cite{wang2026riboseek} (RiboSeek) &
++Foldseek-style RNA 3D structure search using spatial-neighbour descriptors and the RS-20 / RS-80 alphabets. &
++AUC 0.935 (RS-80) on the Rfam benchmark; 204 ms per query, about 75,000-fold faster than US-align. &
++Preprint; needs a 3D query; prefilter recall is 0.645 at K\,=\,10; downstream prediction not tested. &
++Possible second-stage re-ranker or TM-score proxy for de-duplicating templates.\\ \hline
++
++Shen et al.~\cite{ref:Shen:2024} (RhoFold+) &
++End-to-end prediction using RNA-FM, MSA features, a transformer module and invariant point attention. &
++Mean RMSD 4.02~\AA\ on RNA-Puzzles (FARFAR2: 6.32~\AA); 7.74~\AA\ on 76 blind structures. &
++Depends on MSAs; Top-K gains use the known structure, so candidate selection is unsolved. &
++Baseline; its open selection problem is what the re-ranking layer targets.\\ \hline
++
++Li et al.~\cite{ref:Li:2026} (DRfold2) &
++Single-sequence prediction with the RCLM language model, a denoising structure module and CSOR post-processing. &
++TM-score 0.350, above DeepFoldRNA (0.292) and close to AlphaFold~3 (0.347). &
++Modest accuracy; pseudoknot recovery 56.3\%; correct fold ranked fifth for 8DP3; only 41 test targets. &
++Baseline; concrete failure case for testing a selector.\\ \hline
++
++Abir et al.~\cite{abir2025biollmnet} (BioLLMNet) &
++RNA interaction prediction from frozen RiNALMo, ESM-2 and MoleBERT embeddings with gated fusion. &
++MCC 0.848 against 0.760 for the best baseline on RPI1460; gated fusion beat concatenation and averaging. &
++Single pooled vector per molecule; mixed RNA--RNA results; one-RNA case study. &
++Supports frozen language-model features with gated fusion; RiNALMo as a candidate to test.\\ \hline
++
++Papazoglou et al.~\cite{ref:Papazoglou:2025} &
++Whether attention maps of RNA language models reveal secondary and tertiary contacts. &
++Tertiary F1 at most 0.56 (MCC 0.17); secondary F1 0.59--0.62 against 0.90 for SPOT-RNA. &
++Small tertiary set (425 structures); only attention was examined, not embeddings. &
++We avoid attention extraction and use language-model features in learned components.\\ \hline
++
++Peni\'{c} et al.~\cite{ref:Penic:2024} (RiNALMo) &
++650M-parameter RNA language model, fine-tuned for secondary structure and other tasks. &
++Beat RNAstructure and CONTRAfold in 8 of 9 held-out families on ArchiveII. &
++No 3D evaluation; non-coding RNA only; 1024-token training cap; each task needs its own head. &
++Candidate alternative to RNet2 in the language-model comparison.\\ \hline
++
++Ding and Xiao~\cite{ref:Ding:2024} &
++RNA inverse folding with a GVP encoder and Transformer. &
++Recovery 0.413 and TM-score 0.481 (RiboLogic 0.142 / 0.390; LEARNA 0.213 / 0.324). &
++Baselines are 2D tools; VAE and loss term unclear; no variance or family-held-out splits. &
++Structure-to-sequence direction; round-trip consistency feature for the re-ranker.\\ \hline
++
++Huang et al.~\cite{ref:Huang:2024} (RiboDiffusion) &
++Diffusion-based inverse folding from a fixed 3D backbone. &
++11\% (sequence split) and 16% (structure split) average gain over four baselines; recovery 57.3\% against 51.7%. &
++Single fixed backbone; weaker on short RNAs; noisy augmentation; real backbones only. &
++Folding-based validation and diversity control inform candidate scoring.\\ \hline
++
++Joshi et al.~\cite{ref:Joshi:2024} (gRNAde) &
++Geometric deep learning for 3D RNA inverse design using a geometric graph. &
++Qualitative; designed sequences from 3D backbones. &
++Needs an accurate backbone; limited training data; recovery is only a proxy for success. &
++Geometric-graph features and a consistency check for candidate structures.\\ \hline
++
++Levine et al.~\cite{ref:Levine:2024} (Cell2Sentence) &
++Converts single-cell expression profiles into ranked gene ``sentences'' for GPT-2 fine-tuning. &
++Pretrained weights outperform training from scratch. &
++Lossy rank encoding; truncation; transcriptomics only; small models. &
++Supports encoding non-text biological data for language models and the planned chat assistant.\\ \hline
++
++Moyon and Marsico~\cite{ref:Moyon:2024} &
++Review of RNA structure prediction, datasets, benchmarks and language models. &
++Language models lead on classification and secondary structure; CASP16 methods struggle with pseudoknots and non-canonical pairs. &
++No new experiments; benchmarks not comparable; limited 3D coverage. &
++Supports similarity-stratified splits (RNA3DB-style) and generate-then-rank.\\ \hline
++
++Sha et al.~\cite{ref:Sha:2024} (epRNA) &
++Small residual 2D CNN (about 1.26M parameters) predicting distance matrices, then multidimensional scaling. &
++About 40 sequences per second; RMSD 3.26~\AA\ on PZ29 and 11.54~\AA\ on PZ33. &
++One structure per sequence; no chirality; small redundant data; up to 100 nt. &
++Fast distance-matrix baseline; contrast with five-candidate output.\\ \hline
++
++trRosettaRNA Authors~\cite{ref:trRosettaRNA} &
++Transformer (RNAformer) predicting geometry restraints, followed by energy minimization. &
++Average RMSD 8.5~\AA\ against 17.4~\AA\ for RNAComposer; first among automated CASP15 servers. &
++Depends on secondary-structure quality; 15.8~\AA\ on RNAs without homologs; single output. &
++Informs structural features and evaluation (RMSD, clash score, blind tests).\\ \hline
++
++Wang et al.~\cite{ref:trRosettaRNA2} (2026) (trRosettaRNA2) &
++Pre-trained secondary-structure prior, SS-aware attention and PyRosetta relaxation. &
++Average RMSD 8.66~\AA\ on TS28 (24\% better than trRosettaRNA); first of 16 CASP16 servers. &
++TM-score about 0.36; AlphaFold~3 used for large RNAs; small test sets; conformers shown on one RNA. &
++Closest precedent: five models per target and generate-then-select; TS28 split as a model.\\ \hline
++\end{longtable}
++}
++\section{Conclusion}
++
++This review set out to find how RNA 3D structure is best predicted from sequence and which template-finding methods work best. The literature gives a clear answer to the first question and a clear gap on the second.
++
++Template-based modelling is the strongest route, and template choice is its weak point. The Stanford RNA 3D Folding study \cite{leerna} found that the top two teams used template-based modelling (TBM) without deep learning and outperformed AlphaFold~3 and trRosettaRNA. Their combined model, RNAPro, reached about 0.64 TM-align, and templates were its most important input. The same study shows that no single search strategy worked on every target. Sequence search (MMseqs2 and the first-place method) and embedding-based search (RNAPro-EBA) each succeeded on some targets and failed on others, and for target 9J09 no method matched the best prior template. RNAPro also forms its five predictions from the top five templates with no learned ranking, and its ensemble uses hand-set weights. Other predictors show the same pattern. RhoFold+ \cite{ref:Shen:2024} and DRfold2 \cite{ref:Li:2026} produce pools that often contain a good structure, but the reported gains depend on knowing the true answer, and DRfold2 ranks the correct fold fifth in one case. Candidate selection without ground truth is therefore the recurring open problem.
++
++What this means for our approach. We keep RNAProΓÇÖs architecture and training recipe fixed and change only which templates it receives at inference. Because the training distribution is unchanged, any gain can be attributed to template choice. Our framework has three parts that follow from the gaps above.
++
++Multi-source candidate generation. Since methods succeed on different targets, we pool candidates from independent searches: sequence similarity (Infernal/Rfam and the MMseqs2 baseline), family lookup, language-model embedding similarity, secondary-structure-aware similarity, and motif or local search, with the first-place Kaggle search as a baseline source. Each candidate keeps its source method, native score and rank.
++
++A learned template selector. A ranking or regression model, trained on TM-align labels computed with US-align against the experimental structure, predicts each candidateΓÇÖs usefulness. It keeps the top five templates after optional de-duplication, and falls back to RNAProΓÇÖs zero-valued template when no candidate passes a validation-tuned threshold. This is our main contribution, and its design is a hypothesis to be tested, since RNAPro does not specify a selection procedure.
++
++A controlled language-model comparison. With data, templates, seeds and schedule fixed, we swap the frozen language model in RNAProΓÇÖs gated slot and compare RNet2 with alternatives such as AIDO.RNA and RiNALMo \cite{ref:Penic:2024}. RiNALMo generalises well across families on secondary structure, and BioLLMNet \cite{abir2025biollmnet} shows that frozen embeddings with gated fusion are effective. Neither paper evaluates 3D prediction, so whether these models help here is untested. Papazoglou et al.\ \cite{ref:Papazoglou:2025} found that language-model attention is close to random for tertiary contacts, so we use embeddings as features and not as a standalone predictor.
++
++Where the other reviewed work fits. RiboSeek \cite{wang2026riboseek} needs a 3D query, so it cannot replace first-stage sequence search. It may still help as a cheap TM-score proxy for de-duplicating candidates or as a selector feature, and we treat this as a hypothesis. trRosettaRNA, trRosettaRNA2 and epRNA support producing several diverse candidates rather than one structure, in line with best-of-five scoring. The inverse-folding papers (RiboDiffusion, gRNAde, Ding and Xiao) and Cell2Sentence address different tasks and are outside our scope. Inverse-folding compatibility scores remain possible future selector features.
++
++Evaluation. Because Moyon and Marsico stress that data leakage inflates generalisation estimates, every search, training and validation step uses only structures that are legal under the split. We use a temporal cutoff as the primary benchmark and a structural-similarity split (planned: RNA3DB) as a harder one. We score best-of-five TM-align (with TM-score, RMSD and Z-scores), compare MMseqs2 alone, the first-place search, each single method, naive pooling, and the learned selector against the best-template upper bound, and report template-poor targets separately, since 95% of the competitionΓÇÖs final targets had a usable template. Limits are stated openly: the RNAPro results are retrospective, a selector cannot exceed the best available template, and small test sets limit statistical power.
++
++In summary, the gap this work targets is the unreliable discovery and selection of templates, and our contribution is a multi-source, learned selection layer tested under leakage-free conditions on top of a fixed RNAPro backbone.
++
++\chapter{Software Requirement Specifications}
++This chapter specifies what our system must do and how well it must do it. The system has two parts. A research pipeline finds and selects templates and predicts RNA 3D structures. A web application lets doctors and researchers submit a sequence, follow the job and examine the result. We describe the features, then the functional requirements, then the quality attributes and non-functional requirements, so that a reader can see what was built and why.
++
++\section{List of Features}
++This section lists the features of the system. The first group belongs to the web application that users see. The second group belongs to the prediction pipeline behind it.
++
++\subsection*{Web application features}
++\begin{itemize}
++\item \textbf{Methodology page.} Explains in plain language how a prediction is produced (template search, template selection, language-model features and structure generation) and where predictions can be weak.
++\item \textbf{Sequence input with validation.} Users paste or upload a sequence, optionally with a dot-bracket secondary structure. The system checks valid characters, length limits, matching structure length and balanced brackets before submission, with specific error messages.
++\item \textbf{Job queue with status tracking.} Each submission runs as a background job with a visible state (queued, running, finished, failed) and current pipeline stage. Users can leave and come back to the result.
++\item \textbf{Interactive 3D structure viewer.} Shows the predicted structure in the browser (Mol* or NGL), with rotation, zoom, display styles and PDB download.
++\item \textbf{Top-k candidates with scores.} Lists the best models ranked by our selector, each with its score, next to the baseline score so the effect of the selector is visible.
++\item \textbf{Run history.} Saves past jobs with input, status, date and results. Users can reopen or re-run a job, and each run has its own shareable link.
++\item \textbf{Failure and edge-case handling.} Gives clear messages when no usable template exists, when a job crashes or times out, or when a sequence is very long.
++\item \textbf{Confidence indicator.} A low/medium/high flag with a short reason, so users know when to trust a model.
++\item \textbf{2D secondary-structure viewer.} An interactive dot-bracket and topology diagram of stems, loops and pseudoknots, linked to the 3D structure.
++\item \textbf{Chat with structure.} A language-model assistant that answers questions about a prediction, using extracted metadata (sequence length, GC content, secondary structure, minimum free energy, detected pockets) supplied as context.
++\end{itemize}
++
++\subsection*{Prediction pipeline features}
++\begin{itemize}
++\item \textbf{Multi-method template discovery.} Five complementary search methods (sequence similarity, function or family lookup, language-model embedding similarity, secondary-structure-aware similarity, and motif or local search), plus the first-place Kaggle search as a baseline source. Every candidate records the method that found it and that method's score and rank.
++\item \textbf{Learned template selector.} Scores the pooled candidates, removes near-duplicates, keeps the top five and falls back to a zero-valued template when none is good enough.
++\item \textbf{Structure prediction.} Five predicted C1$'$ structures per sequence, each guided by one selected template.
++\item \textbf{Language-model comparison.} A controlled way to swap the RNA language model while keeping everything else fixed.
++\item \textbf{Evaluation tooling.} TM-align scoring and reporting on temporal and structural-similarity benchmarks, with template-poor targets reported separately.
++\end{itemize}
++
++\section{Functional Requirements}
++This section describes the external behavior of the system. Each requirement states the function, what it does, and who uses it. The users are the User (a researcher, doctor or drug-discovery researcher using the web application), the System (the automated backend), and the Project team (for the research evaluation).
++
++\subsection*{Input and job management}
++\begin{itemize}
++\item \textbf{FR-1: Submit a sequence.} The user pastes or uploads an RNA sequence, optionally with a dot-bracket structure. \textit{Actor: User.}
++\item \textbf{FR-2: Validate input.} The system rejects invalid input before submission and states the exact problem, for example `position 42 contains an invalid character'', with checks for characters, length limit, matching structure length and balanced brackets. \textit{Actors: User, System.}
++\item \textbf{FR-3: Create a background job.} The system accepts a valid submission, creates a job and runs it without blocking the user. \textit{Actor: System.}
++\item \textbf{FR-4: Track job status.} The user sees the job state (queued, running, finished, failed) and current pipeline stage, and can leave and return later. \textit{Actor: User.}
++\item \textbf{FR-5: Keep run history.} The system saves each job with its input, status, date and results. The user can reopen or re-run a job. \textit{Actors: User, System.}
++\item \textbf{FR-6: Share a run.} Each run has its own link the user can share. \textit{Actor: User.}
++\end{itemize}
++
++\subsection*{Prediction pipeline}
++\begin{itemize}
++\item \textbf{FR-7: Generate candidate templates.} For each sequence, the system runs the five search methods and the baseline search, and pools the results with each candidate's source method, score and rank. \textit{Actor: System.}
++\item \textbf{FR-8: Select templates.} The system scores all candidates with the selector, removes near-duplicates, and keeps the top five. \textit{Actor: System.}
++\item \textbf{FR-9: Apply the fallback.} When no candidate passes the score threshold, the system uses a zero-valued template and flags the result as low confidence. \textit{Actor: System.}
++\item \textbf{FR-10: Predict structures.} The system produces five predicted C1$'$ structures, each guided by one selected template. \textit{Actor: System.}
++\item \textbf{FR-11: Swap the language model.} The system lets the research team change the RNA language model in the pipeline while holding data, templates, seeds and training schedule fixed. \textit{Actor: Project team.}
++\end{itemize}
++
++\subsection*{Results and interpretation}
++\begin{itemize}
++\item \textbf{FR-12: Display the 3D structure.} The user views the predicted structure in an interactive viewer with rotate, zoom and display-style options. \textit{Actor: User.}
++\item \textbf{FR-13: Download the model.} The user downloads a selected structure as a PDB file. \textit{Actor: User.}
++\item \textbf{FR-14: List top-k candidates.} The results page lists the best models ranked by the selector, each with its score and the baseline score alongside. Selecting one loads it into the viewer. \textit{Actor: User.}
++\item \textbf{FR-15: Show confidence.} The system shows a low/medium/high indicator with a short reason for each result. \textit{Actors: User, System.}
++\item \textbf{FR-16: Handle failures clearly.} The system shows an understandable message for cases such as no close template found, a crashed or timed-out job, or a very long sequence, and never shows a silent poor result. \textit{Actors: User, System.}
++\item \textbf{FR-17: Show the 2D structure.} The system draws an interactive 2D secondary-structure diagram and highlights regions that correspond to parts of the 3D structure. \textit{Actor: User.}
++\item \textbf{FR-18: Chat with the structure.} The user asks questions about a prediction in natural language. The system answers using the extracted metadata of that prediction. \textit{Actor: User.}
++\item \textbf{FR-19: Explain the method.} The user can open a methodology page describing how predictions are made and their limits. \textit{Actor: User.}
++\end{itemize}
++
++\subsection*{Evaluation}
++\begin{itemize}
++\item \textbf{FR-22: Score predictions.} The system computes TM-align (best of five predictions per target, averaged), TM-score, C1$'$ RMSD and per-target Z-scores against experimental structures. \textit{Actor: Project team.}
++\item \textbf{FR-23: Run benchmarks.} The system evaluates on a temporal-cutoff benchmark and possibly a structural-similarity benchmark, restricts every template search to structures that were legally available, and reports template-poor targets separately. \textit{Actor: Project team.}
++\item \textbf{FR-24: Compare against baselines.} The system compares results with the published baselines and the best-template upper bound. \textit{Actor: Project team.}
++\end{itemize}
++
++\section{Quality Attributes}
++Quality attributes describe how well the system performs its functions. The most important ones for our system follow.
++\begin{itemize}
++\item \textbf{Accuracy and trustworthiness.} Our main quality aim is that predictions are as accurate as the available templates allow, and that users are told when they are not. We measure accuracy with TM-align and related metrics. We treat honest reporting as part of quality: the confidence indicator and failure messages must reflect the real evidence behind a prediction.
++\item \textbf{Reproducibility.} A reader should be able to repeat our results. Every template search must use only structures legal under the data split, test targets are scored once, random seeds and training schedules are fixed, and every choice we make ourselves is documented.
++\item \textbf{Usability.} Researchers and doctors have different levels of expertise. The interface should be understandable without knowledge of structure prediction, with specific error messages, a plain-language methodology page and a clear confidence flag.
++\item \textbf{Reliability.} Jobs should not be lost. A job that crashes or times out must be reported with a clear state, and the user must be able to return to results later.
++\item \textbf{Transparency.} Users should be able to see what a prediction is based on, including which templates were selected and how their scores compare with the baseline.
++\item \textbf{Maintainability and modularity.} Search methods, the selector, the language model and the interface should be separate parts, so that one can be changed without rewriting the others.
++\item \textbf{Performance.} Users should not wait on a frozen page. Long predictions run in the background with visible progress, and interactive features such as the 3D viewer and charts should respond smoothly.
++\end{itemize}
++
++\section{Non-Functional Requirements}
++This section states the measurable and constraint-type requirements that the system must meet. Where a figure is given, it is a design target that we will confirm against our available hardware during implementation.
++\begin{itemize}
++\item \textbf{Performance.}
++  \begin{itemize}
++  \item Pages other than prediction results (input, status, history, methodology) should load within a few seconds under normal use.
++  \item Prediction runs as a background job, because structure generation is compute-heavy. Its duration depends on sequence length and available GPUs, and the user sees the stage the job has reached.
++  \item The system should support a small group of simultaneous users, in the range of 5 to 10 concurrent users, with jobs waiting in a queue when the compute is busy. This is a target for demonstration, not a production capacity.
++  \end{itemize}
++\item \textbf{Scalability.} The job queue should allow more workers to be added so that more jobs can be processed in parallel, if more compute becomes available.
++\item \textbf{Reusability.} The template search methods, selector and evaluation tools should be usable independently of the web application, for example from scripts, so other researchers can reuse them on their own RNAs.
++\item \textbf{Extensibility.} It should be possible to add a new template-search method, a new RNA language model or a new secondary feature without changing the rest of the system. Candidates keep a record of their source method, so a new method fits the same format.
++\item \textbf{Reproducibility and traceability.} Each result should record the input, selected templates, versions of the pipeline components and settings used, so a run can be repeated and explained.
++\item \textbf{Correctness of data handling.} Template searches must be limited to structures legal under the data split. Test data must not be used for training or tuning.
++\item \textbf{Security and privacy.} Submitted sequences may be unpublished research, so they should be visible only to the user who submitted them, except through a share link the user creates. The system should not reveal one user's inputs to another.
++\item \textbf{Usability and accessibility.} The interface should work in current desktop browsers. Error messages should be specific and understandable by non-experts.
++\item \textbf{Compatibility and portability.} The web application should run in the current versions of common browsers without installation. The pipeline should run on a Linux GPU environment, and its components and settings should be documented.
++\item \textbf{Availability.} For the project demonstration, the application should be available during testing and examination periods. We do not plan continuous production hosting.
++\item \textbf{Documentation.} The design, implementation, evaluation and a user manual must be documented so that others can use and reproduce the system.
++\end{itemize}
++
++\clearpage
++\section{Use Cases}
++
++\begin{table}[H]
++\centering
++\caption{Use Case: View and Interact with 3D Structure}
++\label{tab:uc-2-1}
++\begin{tabular}{|lllll|}
++\hline
++\multicolumn{2}{|l|}{\textbf{Name}} &
++  \multicolumn{3}{l|}{View and Interact with 3D Structure} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Actors}} &
++  \multicolumn{3}{l|}{Researcher} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Summary}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user shall view the predicted 3D structure of the submitted RNA\\ sequence in an interactive viewer, and shall be able to rotate, zoom\\ and change the display style of the structure.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Pre-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The job must have finished successfully.\\ At least one predicted model must be available.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Post-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}Success: The model is displayed in the viewer with the orientation,\\ zoom level and display style chosen by the user.\\ Failure: No model is displayed and an error or status message\\ is shown to the user.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Special\\ Requirements\end{tabular}}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The viewer shall run in the browser without any plugin installation.\end{tabular}} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Basic Flow}} \\ \hline
++\multicolumn{3}{|c|}{\textbf{Actor Action}} &
++  \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the results\\ page of a finished job.\end{tabular}} &
++  \multicolumn{1}{l|}{2} &
++  \begin{tabular}[c]{@{}l@{}}The system loads the top-ranked model into the\\ 3D viewer using the default display style.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user rotates or zooms\\ the structure using the\\ mouse or touch input.\end{tabular}} &
++  \multicolumn{1}{l|}{4} &
++  \begin{tabular}[c]{@{}l@{}}The system updates the view in real time.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{5} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user selects a different\\ display style (e.g., cartoon,\\ ball-and-stick, surface).\end{tabular}} &
++  \multicolumn{1}{l|}{6} &
++  \begin{tabular}[c]{@{}l@{}}The system re-renders the structure in the\\ selected display style.\end{tabular} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Alternative Flow}} \\ \hline
++\multicolumn{1}{|l|}{1-A} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the results\\ page of a job that has not\\ finished.\end{tabular}} &
++  \multicolumn{1}{l|}{2-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the message: Results are not\\ available yet, with a link to the job status page.\\ The use case ends.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{1-B} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the results\\ page, but the 3D viewer\\ cannot be initialised (e.g.,\\ WebGL is not supported).\end{tabular}} &
++  \multicolumn{1}{l|}{2-B} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the error message: The 3D viewer\\ could not be loaded. You can still download the PDB file.\\ The Download PDB button remains available.\\ The use case ends.\end{tabular} \\ \hline
++\end{tabular}
++\end{table}
++
++\begin{figure}[H]
++\centering
++\includegraphics[width=0.8\textwidth]{Figures/UC_view_3d.png}
++\caption{Use Case Diagram: View and Interact with 3D Structure}
++\label{fig:uc_view_3d}
++\end{figure}
++
++\begin{table}[H]
++\centering
++\caption{Use Case: View 2D Secondary Structure}
++\label{tab:uc-2-5}
++\begin{tabular}{|lllll|}
++\hline
++\multicolumn{2}{|l|}{\textbf{Name}} &
++  \multicolumn{3}{l|}{View 2D Secondary Structure} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Actors}} &
++  \multicolumn{3}{l|}{Researcher} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Summary}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user shall view an interactive 2D graph of the secondary structure\\ (dot-bracket notation) used for the job. The structure is either\\ the dot-bracket provided by the user at submission or the one\\ predicted by the system, and its source is shown on the screen.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Pre-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The job must have finished successfully.\\ A dot-bracket structure must be available, either provided by the\\ user (already validated at submission) or generated by the system.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Post-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}Success: The 2D graph, its dot-bracket string and its source label are\\ displayed on the screen.\\ Failure: No graph is displayed and an error message is shown.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Special\\ Requirements\end{tabular}}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The graph shall be rendered as an interactive SVG supporting zoom\\ and pan.\end{tabular}} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Basic Flow}} \\ \hline
++\multicolumn{3}{|c|}{\textbf{Actor Action}} &
++  \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the 2D\\ Structure screen.\end{tabular}} &
++  \multicolumn{1}{l|}{2} &
++  \begin{tabular}[c]{@{}l@{}}The system retrieves the dot-bracket structure and its\\ source, renders it as an interactive 2D graph, and labels it\\ as User-provided or Predicted (RNAfold).\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user zooms, pans or\\ drags nodes in the graph.\end{tabular}} &
++  \multicolumn{1}{l|}{4} &
++  \begin{tabular}[c]{@{}l@{}}The system updates the graph accordingly.\end{tabular} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Alternative Flow}} \\ \hline
++\multicolumn{1}{|l|}{1-A} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the 2D\\ Structure screen but no\\ structure is available.\end{tabular}} &
++  \multicolumn{1}{l|}{2-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the error message: Secondary structure\\ could not be generated for this sequence. The use case ends.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{1-B} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the 2D\\ Structure screen but the\\ stored dot-bracket string is\\ invalid or does not match\\ the sequence length.\end{tabular}} &
++  \multicolumn{1}{l|}{2-B} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the error message: The secondary\\ structure could not be displayed because the dot-bracket\\ string is invalid. The use case ends.\end{tabular} \\ \hline
++\end{tabular}
++\end{table}
++
++\begin{figure}[H]
++\centering
++\includegraphics[width=0.8\textwidth]{Figures/UC_view_2d.png}
++\caption{Use Case Diagram: View 2D Secondary Structure}
++\label{fig:uc_view_2d}
++\end{figure}
++
++\begin{table}[H]
++\centering
++\caption{Use Case: Highlight Stems, Loops and Pseudoknots}
++\label{tab:uc-2-6}
++\begin{tabular}{|lllll|}
++\hline
++\multicolumn{2}{|l|}{\textbf{Name}} &
++  \multicolumn{3}{l|}{Highlight Stems, Loops and Pseudoknots} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Actors}} &
++  \multicolumn{3}{l|}{Researcher} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Summary}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user shall highlight stems, loops and pseudoknots in the 2D graph\\ and see the matching nucleotides highlighted in the 3D viewer.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Pre-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The 2D secondary structure must be displayed.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Post-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}Success: The selected structural elements are highlighted in the\\ 2D graph and in the 3D viewer.\\ No match: No highlighting is applied and a message is shown.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Special\\ Requirements\end{tabular}}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}Each element type shall use a distinct colour, explained by a legend.\end{tabular}} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Basic Flow}} \\ \hline
++\multicolumn{3}{|c|}{\textbf{Actor Action}} &
++  \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user selects an element\\ type (stem, loop or\\ pseudoknot) from the legend.\end{tabular}} &
++  \multicolumn{1}{l|}{2} &
++  \begin{tabular}[c]{@{}l@{}}The system highlights all elements of that type in the 2D\\ graph using a distinct colour.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user clicks on a\\ specific element in the graph.\end{tabular}} &
++  \multicolumn{1}{l|}{4} &
++  \begin{tabular}[c]{@{}l@{}}The system shows the element's type and nucleotide\\ positions and highlights the same nucleotides in the\\ 3D viewer.\end{tabular} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Alternative Flow}} \\ \hline
++\multicolumn{1}{|l|}{1-A} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user selects an element\\ type that is not present in\\ the structure.\end{tabular}} &
++  \multicolumn{1}{l|}{2-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the message: No elements of this type\\ were found in this structure (e.g., no pseudoknots), and\\ applies no highlighting. The flow resumes at step 1.\end{tabular} \\ \hline
++\end{tabular}
++\end{table}
++
++\begin{table}[H]
++\centering
++\caption{Use Case: Sequence Input and Validation}
++\label{tab:uc-sequence-input}
++\begin{tabular}{|lllll|}
++\hline
++\multicolumn{2}{|l|}{\textbf{Name}} &
++  \multicolumn{3}{l|}{Sequence Input and Validation} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Actors}} &
++  \multicolumn{3}{l|}{Researcher} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Summary}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user enters or uploads an RNA sequence, optionally adds a 2D\\ structure in dot-bracket notation, and submits it. The system\\ validates the input before creating a prediction job.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Pre-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user has an RNA sequence ready and has opened the sequence\\ input page.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Post-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The validated input is accepted, a prediction job is queued, and\\ the user is taken to the job status page.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Special\\ Requirements\end{tabular}}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The sequence may contain only A, C, G, and U. The sequence must\\ be within the allowed length limit. If a dot-bracket is given, its\\ length must match the sequence length and its brackets must be\\ balanced. Error messages must be specific, e.g. ``Position 42\\ contains an invalid character.''\end{tabular}} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Basic Flow}} \\ \hline
++\multicolumn{3}{|c|}{\textbf{Actor Action}} &
++  \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the\\ sequence input page.\end{tabular}} &
++  \multicolumn{1}{l|}{2} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the input form with a sequence field,\\ a file upload option, and an optional dot-bracket field.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user pastes or\\ uploads an RNA sequence.\end{tabular}} &
++  \multicolumn{1}{l|}{4} &
++  \begin{tabular}[c]{@{}l@{}}The system reads the sequence and displays it in the form.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{5} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user optionally enters\\ a dot-bracket 2D structure.\end{tabular}} &
++  \multicolumn{1}{l|}{6} &
++  \begin{tabular}[c]{@{}l@{}}The system accepts the dot-bracket and displays it in the\\ form.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{7} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user clicks Submit.\end{tabular}} &
++  \multicolumn{1}{l|}{8} &
++  \begin{tabular}[c]{@{}l@{}}The system checks the valid characters, sequence length,\\ dot-bracket length, and bracket balance.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{} &
++  \multicolumn{2}{l|}{} &
++  \multicolumn{1}{l|}{9} &
++  \begin{tabular}[c]{@{}l@{}}The system creates a prediction job, adds it to the queue,\\ and redirects the user to the job status page.\end{tabular} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Alternative Flow}} \\ \hline
++\multicolumn{1}{|l|}{7} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user submits a\\ sequence or dot-bracket\\ that is invalid.\end{tabular}} &
++  \multicolumn{1}{l|}{8-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays a specific error message stating the\\ problem and its position, and keeps the user on the input\\ form.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user uploads a file\\ that cannot be read.\end{tabular}} &
++  \multicolumn{1}{l|}{4-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays an error message asking the user to\\ upload a valid sequence file.\end{tabular} \\ \hline
++\end{tabular}
++\end{table}
++
++\begin{figure}[H]
++\centering
++\includegraphics[width=0.8\textwidth]{Figures/UC_enter_rna_sequence.png}
++\caption{Use Case Diagram: Sequence Input and Validation}
++\label{fig:uc_enter_rna_sequence}
++\end{figure}
++
++\begin{table}[H]
++\centering
++\caption{Use Case: Job Status Tracking}
++\label{tab:uc-job-status}
++\begin{tabular}{|lllll|}
++\hline
++\multicolumn{2}{|l|}{\textbf{Name}} &
++  \multicolumn{3}{l|}{Job Status Tracking} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Actors}} &
++  \multicolumn{3}{l|}{Researcher} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Summary}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user views the state of a submitted job (queued, running,\\ finished, or failed) and the current pipeline stage. The user can\\ leave the page and return later to the result.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Pre-Conditions}} &
++  \multicolumn{3}{l|}{The user has submitted a prediction job.} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Post-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user sees the latest job state. A finished job gives access to\\ its results, and a failed job shows a failure message.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Special\\ Requirements\end{tabular}}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}Each job runs in the background. The job state and pipeline stage\\ must update without the user restarting the job. A failure must\\ show a clear message, e.g. ``Low confidence, no close template\\ found.''\end{tabular}} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Basic Flow}} \\ \hline
++\multicolumn{3}{|c|}{\textbf{Actor Action}} &
++  \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the job\\ status page.\end{tabular}} &
++  \multicolumn{1}{l|}{2} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the job state and the current pipeline\\ stage.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user leaves the page.\end{tabular}} &
++  \multicolumn{1}{l|}{4} &
++  \begin{tabular}[c]{@{}l@{}}The system continues running the job in the background.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{5} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user returns to the job\\ status page later.\end{tabular}} &
++  \multicolumn{1}{l|}{6} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the latest job state and, if the job is\\ finished, a link to the results.\end{tabular} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Alternative Flow}} \\ \hline
++\multicolumn{1}{|l|}{5} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user returns to a job\\ that has failed or timed\\ out.\end{tabular}} &
++  \multicolumn{1}{l|}{6-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays a failure message explaining the reason\\ and offers the option to submit again.\end{tabular} \\ \hline
++\end{tabular}
++\end{table}
++
++\begin{figure}[H]
++\centering
++\includegraphics[width=0.8\textwidth]{Figures/UC_view_job_status.png}
++\caption{Use Case Diagram: Job Status Tracking}
++\label{fig:uc_view_job_status}
++\end{figure}
++
++\begin{table}[H]
++\centering
++\caption{Use Case: Run History}
++\label{tab:uc-run-history}
++\begin{tabular}{|lllll|}
++\hline
++\multicolumn{2}{|l|}{\textbf{Name}} &
++  \multicolumn{3}{l|}{Run History} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Actors}} &
++  \multicolumn{3}{l|}{Researcher} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Summary}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user views past jobs with their input, status, date, and\\ results. The user can reopen a past run, re-run it, or share a link\\ to it.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Pre-Conditions}} &
++  \multicolumn{3}{l|}{The user has submitted at least one job before.} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Post-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The selected run is reopened, a new job is queued for a re-run,\\ or a shareable link is generated.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Special\\ Requirements\end{tabular}}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}Each run must have its own shareable link. Runs should be listed\\ with the newest first.\end{tabular}} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Basic Flow}} \\ \hline
++\multicolumn{3}{|c|}{\textbf{Actor Action}} &
++  \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the run\\ history page.\end{tabular}} &
++  \multicolumn{1}{l|}{2} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the list of past runs with input, status,\\ and date.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user selects a run and\\ chooses Reopen.\end{tabular}} &
++  \multicolumn{1}{l|}{4} &
++  \begin{tabular}[c]{@{}l@{}}The system loads the saved input and results of that run.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{5} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user chooses Re-run.\end{tabular}} &
++  \multicolumn{1}{l|}{6} &
++  \begin{tabular}[c]{@{}l@{}}The system creates a new job with the same input and adds\\ it to the queue.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{7} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user chooses Share.\end{tabular}} &
++  \multicolumn{1}{l|}{8} &
++  \begin{tabular}[c]{@{}l@{}}The system generates a link for that run and displays it to\\ copy.\end{tabular} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Alternative Flow}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the run\\ history page with no\\ previous runs.\end{tabular}} &
++  \multicolumn{1}{l|}{2-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays a message that no runs exist yet and\\ links to the sequence input page.\end{tabular} \\ \hline
++\end{tabular}
++\end{table}
++
++\begin{table}[H]
++\centering
++\caption{Use Case: Methodology}
++\label{tab:uc-methodology}
++\begin{tabular}{|lllll|}
++\hline
++\multicolumn{2}{|l|}{\textbf{Name}} &
++  \multicolumn{3}{l|}{Methodology} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Actors}} &
++  \multicolumn{3}{l|}{Researcher} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Summary}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user reads how the prediction pipeline works, including the\\ LLM-based modeling, the ML re-ranking layer, and the\\ language-model features. The user also views the pipeline\\ diagram and reads the limitations.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Pre-Conditions}} &
++  \multicolumn{3}{l|}{The user has opened the application.} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Post-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user understands what the predictions are based on and where\\ they can be weak.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Special\\ Requirements\end{tabular}}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The text must be in plain language. A simple diagram of the\\ pipeline must be included. The limitations must be stated\\ clearly.\end{tabular}} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Basic Flow}} \\ \hline
++\multicolumn{3}{|c|}{\textbf{Actor Action}} &
++  \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the\\ methodology page.\end{tabular}} &
++  \multicolumn{1}{l|}{2} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the explanation of how the pipeline\\ works.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user views the\\ pipeline diagram.\end{tabular}} &
++  \multicolumn{1}{l|}{4} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the diagram of the pipeline stages.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{5} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user reads the\\ limitations.\end{tabular}} &
++  \multicolumn{1}{l|}{6} &
++  \begin{tabular}[c]{@{}l@{}}The system displays where the predictions can be weak.\end{tabular} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Alternative Flow}} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the page\\ when the diagram cannot\\ load.\end{tabular}} &
++  \multicolumn{1}{l|}{4-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays a text description of the pipeline stages\\ instead.\end{tabular} \\ \hline
++\end{tabular}
++\end{table}
++
++\begin{table}[H]
++\centering
++\caption{Use Case: Chat with Structure}
++\label{tab:uc-chat}
++\begin{tabular}{|lllll|}
++\hline
++\multicolumn{2}{|l|}{\textbf{Name}} &
++  \multicolumn{3}{l|}{Chat with Structure} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Actors}} &
++  \multicolumn{3}{l|}{Researcher} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Summary}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user asks natural-language questions about a predicted RNA\\ structure. The system gives the language model the structure's\\ metadata (sequence, length, GC content, dot-bracket, MFE,\\ detected pockets) and shows the model's answer.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Pre-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The prediction job for the structure has finished and its results\\ are available.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{Post-Conditions}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The user's question and the model's answer are shown in the chat\\ and saved in the chat history of that job.\end{tabular}} \\ \hline
++\multicolumn{2}{|l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Special\\ Requirements\end{tabular}}} &
++  \multicolumn{3}{l|}{\begin{tabular}[c]{@{}l@{}}The metadata must be extracted after the 3D prediction finishes\\ and passed to the language model as context. The answer must\\ be shown in the chat window. Empty questions must not be sent.\end{tabular}} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Basic Flow}} \\ \hline
++\multicolumn{3}{|c|}{\textbf{Actor Action}} &
++  \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the chat\\ for a predicted structure.\end{tabular}} &
++  \multicolumn{1}{l|}{2} &
++  \begin{tabular}[c]{@{}l@{}}The system checks that the job has finished and displays the\\ chat window with suggested questions.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user types a question\\ about the structure, or\\ selects a suggested\\ question.\end{tabular}} &
++  \multicolumn{1}{l|}{4} &
++  \begin{tabular}[c]{@{}l@{}}The system extracts the structure metadata and builds the\\ context prompt.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{} &
++  \multicolumn{2}{l|}{} &
++  \multicolumn{1}{l|}{5} &
++  \begin{tabular}[c]{@{}l@{}}The system sends the prompt and the question to the\\ language model.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{6} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user reads the\\ response.\end{tabular}} &
++  \multicolumn{1}{l|}{7} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the language model's response in the\\ chat.\end{tabular} \\ \hline
++\multicolumn{5}{|c|}{\textbf{Alternative Flow}} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user opens the chat\\ for a job that has not\\ finished or has failed.\end{tabular}} &
++  \multicolumn{1}{l|}{2-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays a message that chat is unavailable until\\ the job finishes successfully.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{3} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user submits an\\ empty question.\end{tabular}} &
++  \multicolumn{1}{l|}{4-A} &
++  \begin{tabular}[c]{@{}l@{}}The system asks the user to enter a question and does not\\ send it.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{5} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The language model fails\\ or times out.\end{tabular}} &
++  \multicolumn{1}{l|}{6-A} &
++  \begin{tabular}[c]{@{}l@{}}The system displays an error message and lets the user try\\ the question again.\end{tabular} \\ \hline
++\multicolumn{1}{|l|}{1} &
++  \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}The user chooses to view\\ earlier messages or clear\\ the conversation.\end{tabular}} &
++  \multicolumn{1}{l|}{2-B} &
++  \begin{tabular}[c]{@{}l@{}}The system displays the saved chat history for the job, or\\ clears it when the user confirms.\end{tabular} \\ \hline
++\end{tabular}
++\end{table}
++
++\begin{figure}[H]
++\centering
++\includegraphics[width=0.8\textwidth]{Figures/UC_chat.png}
++\caption{Use Case Diagram: Chat with Structure}
++\label{fig:uc_chat}
++\end{figure}
++
++\section{Hardware and Software Requirements}
++This project is a research pipeline, so the requirements below cover developing and running the experiments in Chapter 5. They do not cover deploying a user-facing application.
++
++\subsection{Hardware Requirements}
++\begin{itemize}
++    \item \textbf{GPUs.} Running RNAPro inference, and training or fine-tuning it if full retraining is carried out, requires high-memory GPUs. The original RNAPro work used eight GB300 GPUs because of the model's large memory requirements. This project will use the closest to this that is available.
++    \item \textbf{CPU and memory.} Sufficient CPU cores and system memory to run the template search methods, build features, and compute TM-align labels for all candidate templates in the training and validation splits.
++    \item \textbf{Storage.} Sufficient disk space for the PDB structures with C1$'$ coordinates, the MSAs, the Eigen dataset, the candidate templates and their stored labels, and the model checkpoints.
++\end{itemize}
++
++\subsection{Software Requirements}
++\begin{itemize}
++    \item \textbf{Prediction model.} RNAPro (Lee et al., 2025), which is built on the Protenix AlphaFold~3 reproduction, together with the Protenix base checkpoints used for initialization.
++    \item \textbf{Template search tools.} MMseqs2, Infernal with Rfam, and tools for embedding-based and secondary-structure-aware search. BEAGLE is a candidate tool for secondary-structure-aware search and is not yet confirmed.
++    \item \textbf{MSA generation.} The rMSA pipeline, with T converted to U in its outputs.
++    \item \textbf{Structure scoring.} US-align, run with the C$1'$ atom and sequence-independent alignment, for TM-align labels, model evaluation, and near-duplicate template comparison.
++    \item \textbf{RNA language models.} RNet2 (default) and AIDO.RNA, plus other models chosen later for the language-model comparison.
++    \item \textbf{Data.} PDB structures, the Eigen dataset of up-to-date sequences and MSAs, and a structural-similarity benchmark for template-poor targets (RNA3DB is planned).
++    \item \textbf{Selector model.} A ranking or regression model, whose type is not yet fixed, together with the software needed to train and tune it.
++\end{itemize}
++
++
++\section{Graphical User Interface}
++\begin{figure}[H]
++    \centering
++    \includegraphics[width=0.7\textwidth]{gui/InputOptional.png}
++    \caption{UseCase 4.7: Sequence Input and Validation}
++    \label{fig: InputValidation}
++\end{figure}
++
++\begin{figure}[H]
++    \centering
++    \includegraphics[width=0.7\textwidth]{gui/JobStatusSuccess.png}
++    \caption{Usecase 4.8: Job Status Tracking}
++    \label{fig:job-status}
++\end{figure}
++
++\begin{figure}[H]
++    \centering
++    \includegraphics[width=0.7\textwidth]{gui/View2D.png}
++    \caption{Usecase 4.5: View 2D Structure}
++    \label{fig:view-2D}
++\end{figure}
++
++\begin{figure}[H]
++    \centering
++    \includegraphics[width=0.7\textwidth]{gui/View2DDetails.png}
++    \caption{Usecase 4.6: Highlights stems, loops and pseudoknots}
++    \label{fig:extended-2D}
++\end{figure}
++
++\begin{figure}[H]
++    \centering
++    \includegraphics[width=0.7\textwidth]{gui/View3D.png}
++    \caption{Usecase 4.1: View and interact with 3D structure and 4.4: Download PDB}
++    \label{fig:view-3d}
++\end{figure}
++
++\begin{figure}[H]
++    \centering
++    \includegraphics[width=0.7\textwidth]{gui/CandidateList.png}
++    \caption{Usecase 4.2 and 4.3}
++    \label{fig:candidates}
++\end{figure}
++
++\section{Database Design}
++\subsection{ER Diagram}
++\begin{figure}[H]
++    \centering
++    \includegraphics[width=0.7\textwidth]{Figures/ERD.png}
++    \caption{Proposed ERD}
++    \label{fig:ERD}
++\end{figure}
++% Subsection fragment: paste inside your chapter file. Requires \usepackage{array} in your preamble.
++% Table numbers follow your document's own table counter (chapter-based if you use report/book).
++
++\newcommand{\hdr}{\hline \textbf{Column Name} & \textbf{Data Type} & \textbf{Column Definition} & \textbf{Nullable} & \textbf{Unique} & \textbf{Column is PK/FK} \\ \hline}
++\newcommand{\rw}[6]{#1 & #2 & #3 & #4 & #5 & #6 \\ \hline}
++\newcommand{\tbl}[3]{%
++\begin{center}\textbf{Table \refstepcounter{table}\thetable: #1}\\[4pt]\textit{#2}\end{center}
++\begin{center}\small
++\begin{tabular}{|p{3.3cm}|p{2.3cm}|p{4.6cm}|c|c|p{1.8cm}|}
++\hdr #3
++\end{tabular}\end{center}\vspace{1em}}
++
++\subsection{Data Dictionary}
++Following is the Data Dictionary for the RNA structure prediction system:
++
++\tbl{TargetRNA}{A table describing attributes and their descriptions for a target RNA submitted for prediction}{
++\rw{target\_id}{varchar(36)}{Identifier for the target RNA}{No}{Yes}{PK}
++\rw{sequence}{text}{RNA sequence (A, C, G, U)}{No}{No}{-}
++\rw{sequence\_length}{int}{Number of nucleotides in the sequence}{No}{No}{-}
++\rw{msa\_ref}{varchar(255)}{Reference to the multiple sequence alignment}{Yes}{No}{-}
++\rw{input\_dot\_bracket}{text}{Optional dot-bracket secondary structure supplied by the user}{Yes}{No}{-}
++\rw{cutoff\_date}{date}{Date after which structures are excluded as templates}{Yes}{No}{-}
++\rw{experimental\_structure\_id}{varchar(36)}{Known experimental structure of the target, if any}{Yes}{No}{FK}
++}
++
++\tbl{Structure}{A table describing attributes and their descriptions for a known 3D structure}{
++\rw{structure\_id}{varchar(36)}{Identifier for the structure}{No}{Yes}{PK}
++\rw{release\_date}{date}{Date the structure was released}{No}{No}{-}
++\rw{c1\_prime\_coordinates}{text}{C1' atom coordinates (JSON array)}{No}{No}{-}
++}
++
++\tbl{DataSplit}{A table describing attributes and their descriptions for a data split definition}{
++\rw{split\_id}{varchar(36)}{Identifier for the split}{No}{Yes}{PK}
++\rw{split\_type}{varchar(30)}{Type of split (e.g. temporal, family)}{No}{No}{-}
++}
++
++\tbl{SplitAssignment}{A table describing attributes and their descriptions for the assignment of targets to splits}{
++\rw{split\_id}{varchar(36)}{Split the target belongs to}{No}{No}{PK, FK}
++\rw{target\_id}{varchar(36)}{Target assigned to the split}{No}{No}{PK, FK}
++\rw{subset}{varchar(10)}{Subset of the split: train, val or test}{No}{No}{-}
++}
++
++\tbl{SearchMethod}{A table describing attributes and their descriptions for a template search method}{
++\rw{method\_id}{varchar(36)}{Identifier for the search method}{No}{Yes}{PK}
++\rw{method\_name}{varchar(50)}{Name of the method (e.g. sequence similarity, motif)}{No}{Yes}{-}
++}
++
++\tbl{CandidateTemplate}{A table describing attributes and their descriptions for a candidate template found for a target}{
++\rw{candidate\_id}{varchar(36)}{Identifier for the candidate}{No}{Yes}{PK}
++\rw{target\_id}{varchar(36)}{Target the candidate was found for}{No}{No}{FK}
++\rw{method\_id}{varchar(36)}{Method that found the candidate}{No}{No}{FK}
++\rw{source\_structure\_id}{varchar(36)}{Structure the template comes from}{No}{No}{FK}
++\rw{native\_score}{float}{Score given by the search method}{No}{No}{-}
++\rw{native\_rank}{int}{Rank given by the search method}{No}{No}{-}
++}
++
++\tbl{FeatureVector}{A table describing attributes and their descriptions for the features of a candidate template}{
++\rw{candidate\_id}{varchar(36)}{Candidate the features describe}{No}{Yes}{PK, FK}
++\rw{agreement\_count}{int}{Number of methods that found this template}{No}{No}{-}
++\rw{sequence\_similarity}{float}{Sequence similarity to the target (0--1)}{No}{No}{-}
++\rw{secondary\_structure\_similarity}{float}{Secondary structure similarity to the target (0--1)}{No}{No}{-}
++\rw{length\_coverage}{float}{Fraction of the target covered by the template}{No}{No}{-}
++\rw{embedding\_similarity}{float}{Language-model embedding similarity}{No}{No}{-}
++}
++
++\tbl{TmalignLabel}{A table describing attributes and their descriptions for a training label of a candidate}{
++\rw{candidate\_id}{varchar(36)}{Candidate being labelled}{No}{Yes}{PK, FK}
++\rw{tm\_align}{float}{TM-align score against the experimental structure}{No}{No}{-}
++}
++
++\tbl{SelectorConfig}{A table describing attributes and their descriptions for a template selector configuration}{
++\rw{selector\_id}{varchar(36)}{Identifier for the configuration}{No}{Yes}{PK}
++\rw{model\_type}{varchar(50)}{Type of selector model}{No}{No}{-}
++\rw{threshold}{float}{Score threshold for using templates (0--1)}{No}{No}{-}
++}
++
++\tbl{SelectionResult}{A table describing attributes and their descriptions for the outcome of template selection}{
++\rw{result\_id}{varchar(36)}{Identifier for the selection result}{No}{Yes}{PK}
++\rw{target\_id}{varchar(36)}{Target the result belongs to}{No}{No}{FK}
++\rw{selector\_id}{varchar(36)}{Selector configuration used}{No}{No}{FK}
++\rw{use\_zero\_template}{boolean}{True if prediction should run without a template}{No}{No}{-}
++}
++
++\tbl{SelectedTemplate}{A table describing attributes and their descriptions for templates kept by a selection result}{
++\rw{result\_id}{varchar(36)}{Selection result the template belongs to}{No}{No}{PK, FK}
++\rw{rank}{int}{Position of the template in the selected order}{No}{No}{PK}
++\rw{candidate\_id}{varchar(36)}{Candidate chosen}{No}{No}{FK}
++}
++
++\tbl{LanguageModel}{A table describing attributes and their descriptions for a language model}{
++\rw{lm\_id}{varchar(36)}{Identifier for the language model}{No}{Yes}{PK}
++\rw{lm\_name}{varchar(50)}{Name of the model (e.g. RNet2, AIDORNA)}{No}{Yes}{-}
++}
++
++\tbl{Prediction}{A table describing attributes and their descriptions for a predicted structure}{
++\rw{prediction\_id}{varchar(36)}{Identifier for the prediction}{No}{Yes}{PK}
++\rw{result\_id}{varchar(36)}{Selection result used}{No}{No}{FK}
++\rw{lm\_id}{varchar(36)}{Language model used}{No}{No}{FK}
++\rw{k}{int}{Rank of the model among the top-k (1--5)}{No}{No}{-}
++\rw{c1\_prime\_coordinates}{text}{Predicted C1' coordinates (JSON array)}{No}{No}{-}
++\rw{pdb\_file\_path}{varchar(255)}{Path to the PDB file offered for download}{Yes}{No}{-}
++\rw{dot\_bracket}{text}{Dot-bracket string shown under the 2D graph}{Yes}{No}{-}
++\rw{selector\_score}{float}{Score from the selector}{Yes}{No}{-}
++\rw{baseline\_score}{float}{Baseline score for comparison}{Yes}{No}{-}
++}
++
++\tbl{EvaluationScore}{A table describing attributes and their descriptions for the evaluation of a prediction}{
++\rw{prediction\_id}{varchar(36)}{Prediction being scored}{No}{Yes}{PK, FK}
++\rw{tm\_align}{float}{TM-align result}{No}{No}{-}
++\rw{tm\_score}{float}{TM-score (0--1)}{No}{No}{-}
++\rw{c1\_rmsd}{float}{C1' root-mean-square deviation}{No}{No}{-}
++}
++
++\tbl{Job}{A table describing attributes and their descriptions for a prediction job and its status}{
++\rw{job\_id}{varchar(20)}{Identifier shown to the user (e.g. RNA-2041)}{No}{Yes}{PK}
++\rw{target\_id}{varchar(36)}{Target RNA submitted in the job}{No}{No}{FK}
++\rw{parent\_job\_id}{varchar(20)}{Job this one re-runs, if any}{Yes}{No}{FK}
++\rw{status}{varchar(10)}{queued, running, finished or failed}{No}{No}{-}
++\rw{current\_stage}{varchar(30)}{Pipeline stage currently running}{Yes}{No}{-}
++\rw{failed\_stage}{varchar(30)}{Stage at which the job failed}{Yes}{No}{-}
++\rw{error\_message}{varchar(255)}{Reason for failure (e.g. sequence too long)}{Yes}{No}{-}
++\rw{recommended\_action}{varchar(255)}{Advice shown on failure}{Yes}{No}{-}
++\rw{confidence\_level}{varchar(6)}{low, medium or high}{Yes}{No}{-}
++\rw{confidence\_reason}{varchar(255)}{One-line reason for the confidence level}{Yes}{No}{-}
++\rw{share\_token}{varchar(64)}{Token used in the shareable job link}{No}{Yes}{-}
++\rw{submitted\_at}{datetime}{Time the job was submitted}{No}{No}{-}
++\rw{started\_at}{datetime}{Time processing began}{Yes}{No}{-}
++\rw{finished\_at}{datetime}{Time the job finished or failed}{Yes}{No}{-}
++}
++
++\tbl{JobStageLog}{A table describing attributes and their descriptions for the progress of a job through pipeline stages}{
++\rw{job\_id}{varchar(20)}{Job the stage belongs to}{No}{No}{PK, FK}
++\rw{stage\_order}{int}{Position of the stage in the pipeline (1--6)}{No}{No}{PK}
++\rw{stage\_name}{varchar(30)}{Name of the stage}{No}{No}{-}
++\rw{state}{varchar(10)}{pending, running, done or failed}{No}{No}{-}
++\rw{started\_at}{datetime}{Time the stage began}{Yes}{No}{-}
++\rw{ended\_at}{datetime}{Time the stage ended}{Yes}{No}{-}
++}
++
++\tbl{SecondaryStructureElement}{A table describing attributes and their descriptions for stems, loops and pseudoknots of a prediction}{
++\rw{element\_id}{varchar(36)}{Identifier for the element}{No}{Yes}{PK}
++\rw{prediction\_id}{varchar(36)}{Prediction the element belongs to}{No}{No}{FK}
++\rw{element\_type}{varchar(12)}{stem, loop or pseudoknot}{No}{No}{-}
++\rw{positions}{varchar(255)}{Nucleotide positions of the element}{No}{No}{-}
++}
++
++\tbl{StructureMetadata}{A table describing attributes and their descriptions for metadata used as chat context}{
++\rw{prediction\_id}{varchar(36)}{Prediction the metadata describes}{No}{Yes}{PK, FK}
++\rw{gc\_content}{float}{Fraction of G and C nucleotides (0--1)}{No}{No}{-}
++\rw{min\_free\_energy}{float}{Minimum free energy (kcal/mol)}{Yes}{No}{-}
++\rw{detected\_pockets}{text}{Detected binding pockets}{Yes}{No}{-}
++}
++
++\tbl{ChatMessage}{A table describing attributes and their descriptions for chat messages about a prediction}{
++\rw{message\_id}{varchar(36)}{Identifier for the message}{No}{Yes}{PK}
++\rw{job\_id}{varchar(20)}{Job the conversation belongs to}{No}{No}{FK}
++\rw{role}{varchar(10)}{user or assistant}{No}{No}{-}
++\rw{content}{text}{Message text}{No}{No}{-}
++\rw{created\_at}{datetime}{Time the message was sent}{No}{No}{-}
++}
++
++\section{Risk Analysis}
++This section lists the risks that could affect the project and how we plan to reduce each one. They are grouped into technical, data and evaluation, schedule and resource, and project risks. The likelihood and impact judgements are our own initial estimates and will be revisited as the work progresses.
++
++\subsection{Technical Risks}
++The most serious technical risk is that the baseline cannot be reproduced. The RNAPro study trained on eight GB300 GPUs and does not state every hyperparameter. We will therefore use the authors' public release and checkpoints where available, report every choice we make ourselves, and, if full retraining is infeasible, use the best available alternative and say so.
++
++A second risk is that the learned selector does not beat simple baselines such as naive pooling or the first-place Kaggle search. We will start with a simple model, add complexity only if validation results justify it, and report a negative result honestly. A related risk is that accuracy is capped by the best template in the pool, and the backbone may suit its own training template distribution better than the one our selector picks. We will report how close the selector gets to the best-template upper bound and state the mismatch as a limitation.
++
++A third risk is that an alternative language model, such as AIDO.RNA, may not provide the pair-level outputs RNAPro expects from RNet2. We will check compatibility before training, derive pair features inside the adapter if needed, and report this as our own design decision.
++
++Search tools may also fail or return nothing for some targets, and very long sequences may exceed the training crop size of 512 or run out of memory. We treat search failure as a normal case: the pool uses whatever the other sources return, falls back to the zero-valued template if it is empty, and logs failures. For long sequences we set a length limit in input validation, show a clear message, and report them separately.
++
++Finally, combining several search tools, a 48-block model and a web application raises the chance of version and dependency conflicts. We will fix and record software versions, keep components behind shared interfaces, and test each one separately.
++
++\subsection{Data and Evaluation Risks}
++The most important evaluation risk is data leakage, where a search or training step sees a structure released after the target's cutoff and inflates results. We enforce the split inside the structure repository, so every read is filtered by the target, and we add a test that no structure released after a cutoff is ever returned.
++
++A second risk is a small test set: the RNAPro study had only ten RNA-Puzzles targets, which limits statistical power. We will report confidence intervals or significance tests where possible and avoid strong claims from small differences. A third risk is that results do not generalise to template-poor RNAs, since about 95\% of the competition's final targets had a usable template. We will add a structural-similarity benchmark (planned: RNA3DB) and report template-poor targets separately.
++
++The RNAPro results are also retrospective, and no prospective blind test is available to us, so we state this as a threat and avoid claims of prospective accuracy. TM-align labels for all candidates are expensive and sensitive to alignment settings, so we compute them once, store them with the software versions and settings, and reuse them. Last, some datasets (the Eigen data, MSAs, RNA3DB) may be unavailable or hard to process in time. We will confirm availability early and, if needed, fall back to accessible data and document the change.
++
++\subsection{Schedule and Resource Risks}
++Limited GPU and storage is likely, because training, caching candidates and running predictions need substantial compute. We will precompute and cache labels and features, use published checkpoints, and prioritise the experiments that answer the main research question.
++
++The scope is also large, covering a research pipeline, a language-model comparison and a web application with many features. We will build in priority order (baseline, candidate generation, selector, then web application) and treat the optional features, such as the chat assistant and 2D viewer, as lower priority.
++
++Prediction jobs are compute-heavy and queues may grow when several users submit at once, so predictions run as background jobs with visible stages, and we target only a small demonstration load. Finally, illness, other coursework or hardware failure may delay work. We will hold regular supervisor meetings, use version control and backups, and leave slack in the FYP-II plan.
++
++\subsection{Project and Business Risks}
++Users may over-trust predictions, for example by treating a low-confidence model as reliable. We mitigate this with a confidence indicator that gives a reason, a methodology page that explains the limits, and a rule that the system never shows a silent poor result.
++
++Submitted sequences may be unpublished research, so a privacy failure would be serious. We make each run visible only to its submitter, except through a share link the user creates. The chat assistant may give incorrect or unsupported answers, so it is limited to the extracted metadata of the prediction and presented as an aid, not an authority.
++
++Lastly, the project depends on external resources such as the RNAPro release, model weights and third-party tools, which may change, disappear or carry licence limits. We will record versions, keep local copies where licences allow, and check licences early.
++\clearpage
++\chapter{Proposed Approach and Methodology}
+ 
+ \section{Introduction}
+-\noindent
+-\lipsum[2]
+-
+-\section{Main Content}
+-\noindent
+-Here is some regular text followed by a centered mathematical equation:
+-\begin{equation}
+-    f(x) = \int_{0}^{\infty} e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+-\end{equation}
++This chapter describes the approach we propose for improving template discovery in RNA 3D structure prediction. Our baseline is RNAPro \cite{leerna}, a model that extends the Protenix AlphaFold~3 reproduction with multiple sequence alignments, an RNA language model, and 3D structural templates. The RNAPro study found that templates are its most important input, that accuracy tracks the best available template, and that different template-search strategies succeed on different targets. We therefore keep the RNAPro architecture and training recipe fixed. Our contribution is a framework that pools candidate templates from several independent search methods and uses a learned selector to choose the most trustworthy ones for each RNA. We also compare several RNA language models inside the same pipeline. The chapter covers the framework, data and splits, candidate generation, the selector, the language-model comparison, model training and inference, and the evaluation protocol.
++
++\section{Framework Overview}
++The framework has two stages that share a data split.
++
++\textbf{Fixed prediction backbone.} RNAPro takes the sequence, the MSA, RNet2 features, and templates. It passes them through a 48-block Pairformer and a diffusion module to produce 3D coordinates. Training uses a pool of 45 templates per target, of which 40 come from MMseqs and 5 from the first-place Kaggle method. When no suitable template exists, a zero-valued template is used.
++
++\textbf{Proposed template-selection layer at inference.} Several search methods each propose candidate templates for a target RNA. A learned selector scores the pooled candidates, and the top five are passed to the trained model, which generates five predictions.
++
++The reasoning for this design is that the training distribution stays unchanged, so any gain at inference can be attributed to better template choice and not to retraining.
++
++\section{Data and Splits}
++\textbf{Data.} We use PDB structures with C1$'$ coordinates, rMSA-generated MSAs (with T converted to U), and the Eigen dataset of up-to-date sequences and MSAs for the second training stage.
++
++\textbf{Splits.} Our primary benchmark uses a temporal cutoff: for each target, only structures released before its cutoff date may serve as templates or training data. We add a second, harder benchmark built from a structural-similarity split of RNAs (we plan to use RNA3DB) to test template-poor cases, which the RNAPro study states remain unbenchmarked.
++
++\textbf{Leakage rule.} Every template search, for training, validation, and test targets, runs only against structures that are legal under the split. Test targets are used for scoring once.
++
++\section{Candidate Template Generation}
++For each target sequence, five search methods run independently and their outputs are pooled. A sixth source, the first-place Kaggle search used by RNAPro at inference, is included as a baseline.
++
++\begin{itemize}
++  \item \textbf{Sequence similarity.} The target is searched against a sequence database, and hits with known 3D structures are kept. Homology based on sequence plus secondary structure uses Rfam and Infernal \cite{kalvari2018,nawrocki2013}. MMseqs2 \cite{steinegger2017} serves as the simple baseline.
++  \item \textbf{Function or family lookup.} If the target's family is known, structures from that family are retrieved from the PDB. This applies only when the function is known, so it is optional for novel RNAs.
++  \item \textbf{Language-model embedding similarity.} The target and database sequences are compared in embedding space. The RNAPro-EBA variant is a precedent, since it used embedding-based analysis \cite{pantolini2024} with RNet2 features.
++  \item \textbf{Secondary-structure-aware similarity.} A secondary structure is predicted or obtained, and the database is searched for similar sequence and secondary-structure combinations. Infernal operates in this way, and BEAGLE is another candidate tool.
++  \item \textbf{Motif or local template search.} Instead of matching the whole RNA, structurally conserved pieces such as hairpins and junctions are matched. The Vfold team found templates for local elements such as hairpin loops when no global template existed.
++  \item \textbf{Baseline source.} The template search of the first-place Kaggle method, which RNAPro uses at inference.
++\end{itemize}
++
++Each candidate keeps a record of which method found it and that method's native score and rank.
++
++\section{Template Selector}
++\textbf{Purpose.} Different methods find different templates, and the selector decides which candidates to trust for a particular RNA.
++
++\textbf{Training label.} For each candidate template in the training and validation splits, we compute its TM-align against the target's experimental structure with US-align, using the C1$'$ atom and sequence-independent alignment. The same computation defines the upper bound, the best prior PDB template, for which 19 of 20 targets had a template above 0.45. We reuse the threshold of 0.45 as the definition of a useful template.
++
++\textbf{Features (proposed).} The finding method, its native score and rank, the number of methods that returned the same template, sequence similarity, secondary-structure similarity, the fraction of the target length covered, and embedding similarity.
++
++\textbf{Model (proposed).} A ranking or regression model predicts each candidate's TM-align. We start with a simple model and report the effect of increasing complexity.
+ 
+-\noindent
+-\lipsum[3]
++\textbf{Selection procedure.}
++\begin{enumerate}
++  \item Predict a score for every candidate of a target.
++  \item Remove near-duplicate templates, using TM-align between candidates (a design choice we will test).
++  \item Keep the five highest-scoring templates, matching RNAPro's five predictions per target.
++  \item If no candidate exceeds a score threshold chosen on validation data, use the zero-valued template, as RNAPro does when no suitable template is found.
++\end{enumerate}
++
++\textbf{Protocol.} The selector trains on the training split, its hyperparameters and the threshold are tuned on validation, and the test split is used once.
++
++\section{Language-Model Comparison}
++RNAPro's default language model is RNet2, which stays frozen. Single and pair representations from each layer are combined by weighted averaging and injected into the model through sigmoid gates, and only the gates train. We will test additional models in the same slot, including AIDO.RNA \cite{zou2024} and others chosen later.
++
++\textbf{Controlled comparison.} Only the language model changes. Data, template pool, random seeds, and the training schedule are held fixed.
++
++\textbf{Compatibility check.} RNAPro uses pair representations from RNet2. For each alternative we first check whether it provides pair-level outputs. If not, pair features must be derived, and that derivation will be reported as our own design decision.
++
++\textbf{Selection.} Each model needs its own training of the gating modules, and the best model is chosen on validation, not test.
++
++\section{Model Training and Inference}
++\textbf{Training.} The model is initialized from Protenix base checkpoints, with a newly initialized template encoder. Stage~1 runs 50,000 steps on the Kaggle dataset at a learning rate of 0.0005. Stage~2 adds the Eigen data and runs another 50,000 steps at 0.0001. The diffusion batch size is 8, and the training crop size is 512 with random cropping. During training, four templates are sampled from the 45 available per example. The RNAPro study used eight GB300 GPUs. Hyperparameters that the study does not specify will be taken from the authors' public release, and any choice we make ourselves will be reported. If full retraining proves infeasible, we will report results from the best available alternative and say so.
++
++\textbf{Inference.} The selector's top five templates condition the predictions, with prediction $k$ using the top-$k$ templates, which gives five C1$'$ structures per target.
++
++\section{Evaluation Protocol}
++\textbf{Metric.} We use TM-align from US-align with the C1$'$ atom. For each target we take the best of the five predictions and then average across targets. A score above 0.45 indicates a correct global fold. We also report TM-score, C1$'$ RMSD, and per-target Z-scores.
++
++\
++
++\textbf{Language-model comparison (templates fixed).} RNet2, AIDO.RNA, and other models, plus the no-language-model ablation reported in the RNAPro study.
++
++\textbf{Subset analysis.} Results are reported separately for template-poor targets, since the RNAPro study states that conclusions favoring template-based modeling may not generalize to them.
++
++
++\section{Threats to Validity}
++The RNAPro results are retrospective, and a prospective blind test is needed to confirm them. Our evaluation inherits this limitation. Accuracy also depends strongly on the best available template, so a selector can improve results only up to that ceiling, and we will report how close it gets. Finally, the RNAPro test set had few targets (ten RNA-Puzzles), which limits statistical power, so we will report confidence intervals or significance tests where our test set allows.
+ 
+ \section{Conclusion}
+-\noindent
+-\lipsum[4]
++This chapter set out a framework that keeps RNAPro's architecture and training recipe intact while changing how templates are chosen at inference. Multiple search methods generate candidates, a learned selector trained on TM-align labels ranks them, and a fallback handles RNAs with no useful template. A controlled comparison of RNA language models runs alongside, using the same data, seeds, and schedule. The evaluation protocol compares each component against the published baselines and the best-template upper bound, reports template-poor targets separately, and states its limits openly. Together these elements let us test whether better template discovery and selection improve RNA 3D structure prediction.
++\clearpage
++\chapter{High-Level and Low-Level Design}
++
++\section{System Overview}
++The system built in this project is a template-selection layer placed in front of an existing RNA 3D structure prediction model. The prediction model is RNAPro \cite{leerna}, which takes an RNA sequence together with its multiple sequence alignment, language-model features, and a small set of 3D structural templates, and produces predicted C1$'$ coordinates through a 48-block Pairformer and a diffusion module. We do not modify this backbone or its training recipe. RNAPro is trained on a fixed pool of 45 templates per target (40 from MMseqs and 5 from the first-place Kaggle method). The design goal is to change only which templates the backbone receives at inference, so that any difference in accuracy can be traced to template choice and not to changes in the model or its training.
++
++At a high level the system has six components.
++
++\begin{enumerate}
++  \item \textbf{Data and split management.} It holds the structures and MSAs and defines two splits: a temporal split, in which each target has a cutoff date and only structures released before it may be used as templates or training data, and potentially also a structural-similarity split (planned: RNA3DB) built to test template-poor targets. Every later component reads only structures that are legal under the split.
++
++  \item \textbf{Candidate generation.} It takes a target sequence and runs independent search methods against the legal structures: sequence similarity (including Infernal/Rfam homology and the MMseqs2 baseline), family lookup, language-model embedding similarity, secondary-structure-aware similarity, and motif or local template search. The search used by the first-place Kaggle method is added as a baseline source. The outputs are pooled into one candidate list, and each candidate carries a record of which method found it together with that method's native score and rank.
++
++  \item \textbf{Label generation.} Used only for training and validation, it scores each candidate with TM-align against the target's experimental structure using US-align. A score above 0.45 marks a useful template.
++
++  \item \textbf{Template selector.} This is the main component proposed in this work. The RNAPro study does not specify a template-selection procedure, so the design below is a starting point to be tested and not a fixed choice. For each candidate, a feature vector is built from the proposed features: the finding method, native score and rank, the number of methods that returned the same template, sequence similarity, secondary-structure similarity, the fraction of the target length covered, and embedding similarity. The usefulness of each feature will be evaluated, and the feature set may change. A ranking or regression model then predicts the TM-align each candidate would achieve against the target's experimental structure. We start with a simple model and report the effect of increasing complexity. Candidates are ranked by predicted score, and the five highest-scoring templates are kept in order, since prediction $k$ uses the top-$k$ templates. Removing near-duplicate templates, using TM-align between candidates, is a design choice that will be tested. If no candidate exceeds a score threshold chosen on validation data, the selector returns the zero-valued template, following RNAPro's handling of targets with no suitable template. Whether this fallback improves results will be evaluated. The selector is trained on the training split, its hyperparameters and threshold are tuned on validation, and the test split is used once.
++
++  \item \textbf{Prediction backbone.} It receives the ordered templates and generates five C1$'$ structures per target. Prediction $k$ is conditioned on the top-$k$ templates. Each selected template is passed through a template encoder, which extracts distogram features from its C1$'$ coordinates, and these features are added to the pair representation. The enriched single and pair representations are refined by a 48-block Pairformer, so that evidence from the template, the MSA and the language model is combined into one consistent description of the target. A diffusion module then takes the refined representations and generates 3D C1$'$ coordinates. The same trained model is run five times with different template inputs, which gives five distinct candidate structures for each target.
++
++  \item \textbf{Evaluation.} It scores the outputs with US-align, takes the best of the five predictions per target, and aggregates results across targets, subsets (with template-poor targets reported separately), and experimental conditions.
++\end{enumerate}
++
++The same organization supports a second experiment, the language-model comparison. Here the template selection stays fixed and only the language-model module of the backbone is swapped, so the design treats the language model as an interchangeable slot with a defined interface and not as a hard-coded part of the network. The design is modular so that every experimental condition in the evaluation protocol, from MMseqs2 alone through to the learned selector, can be produced by changing one component while the rest of the pipeline stays identical.
++
++At the lower level of design, the data flowing between components is kept simple. A target is represented by its sequence, its cutoff date, and its experimental structure when one is available for labeling. A candidate is represented by the identifier of its source structure, the method that found it, its native score and rank, and its feature vector. A selection result is an ordered list of up to five template identifiers, or a flag indicating that the zero-valued template should be used. Every search and every training or scoring step reads from a structure database filtered by the split rule, so the leakage constraint is enforced at the point where data is read and not left to later checking.
++
++\section{Design Considerations}
++
++\subsection{Assumptions and Dependencies}
++The design rests on a small number of explicit assumptions. The first is that the RNAPro architecture, its training recipe, and its public release are available and reproducible. We assume that hyperparameters the RNAPro study does not specify can be taken from the authors' release, and that where this is not possible, our own choices will be recorded and reported.
++
++The design also depends on external software and data. Template search depends on MMseqs2, Infernal with Rfam, and an embedding model for similarity, and the secondary-structure-aware search depends on a tool that can predict or supply a secondary structure for the target. Labels and evaluation depend on US-align, which is used to compute TM-align on the C1$'$ atom with sequence-independent alignment. Training and inference depend on PDB structures, rMSA-generated alignments, and the Eigen dataset, and on the Protenix base checkpoints used for initialization. For the language-model comparison we assume each alternative model can be loaded and run locally, and that it either provides pair-level outputs or allows pair features to be derived, which would then be reported as our own design decision.
++
++On the hardware side, RNAPro was trained on eight GB300 GPUs, and we assume access to far less compute. This is treated as a dependency and not as a hidden detail, because it determines whether full retraining is possible. The users of the system are researchers and the FYP evaluation panel and not members of the public, so we assume they are comfortable with command-line workflows and with reading standard structural metrics such as TM-align and RMSD. We also allow for probable changes in functionality: the list of search methods is expected to grow or shrink after pilot experiments, the choice of selector model will be refined from a simple baseline, and additional language models will be added as they are identified.
++
++\subsection{General Constraints}
++The most significant constraint is compute. Retraining the backbone at the scale used in the RNAPro study is likely beyond the available hardware, and this directly shaped the design. By keeping the backbone and its training distribution fixed and placing all new work at inference, the system needs only a selector that is cheap to train, since it learns from precomputed features and TM-align labels. Where the language-model comparison does require retraining the gating modules, the freezing of the language model keeps that cost limited to the gates. If even this proves infeasible, the design allows reporting results from the best available alternative, with the limitation stated openly.
++
++A second constraint comes from data integrity. Because the evaluation claims to measure the effect of template choice, any template, training example, or selector label that is not legal under the split would invalidate the results. The design therefore requires that every search for training, validation, and test targets run only against structures released before that target's cutoff, and that test targets are used for scoring once. This constraint affects the structure of the code, since the database access layer must apply the split filter itself. A related constraint is label cost. Computing TM-align between every candidate and every target structure for the training and validation splits is expensive, so labels are computed once, stored, and reused across selector experiments.
++
++Further constraints come from the problem itself. The accuracy ceiling set by the best available template means the selector can improve results only up to that bound, and the design reports how close it comes. The RNAPro test set is small, with ten RNA-Puzzles targets, which limits statistical power, so we add a second, structurally split benchmark that includes template-poor RNAs, and report confidence intervals or significance tests where possible. Pooling templates from different tools raises an interoperability problem. Every candidate must be converted to the template format RNAPro expects, with residue mappings to the target, and each tool scores its hits on a different native scale. We therefore store each native score alongside the method that produced it and do not compare scores directly across methods, leaving the selector to learn how far to trust each source. Finally, to attribute any gain to template selection and not to other changes, the backbone stays fixed, and all compared conditions use the same random seeds, recorded software versions and training schedule.
++
++\subsection{Goals and Guidelines}
++The first guiding principle is controlled comparison. Every design decision favors the ability to say that a measured difference came from one cause. This is why the backbone and training recipe stay fixed, why the language-model comparison changes only the language model, and why the evaluation protocol builds up from the MMseqs2 baseline through each new method alone, a simple heuristic picker, and finally the learned selector. A reader who sees an improvement from the learned selector can then compare it against the heuristic picker and judge whether the learning step itself contributed, and not only the pooling of methods.
++
++The second principle is simplicity first. The selector begins as a simple model, and its complexity is increased only if validation results justify it, with the effect of that increase reported. This follows the view that a simple, well-understood model is easier to debug and trust, and that it is better to show what additional complexity buys than to assume it helps. The same principle applies to the deduplication step and the fallback threshold, which are described as design choices that will be tested.
++
++The third principle is modularity, which keeps the pipeline extensible. Each search method sits behind the same interface and returns candidates in the same format, so a method can be added, removed, or evaluated alone without changing the rest of the system. The language model is treated the same way. This matters for the project because the set of search methods and language models is expected to change as experiments proceed. The fourth principle is honest reporting. The design requires the system to report its own reproduced baseline number and not either of the two figures given in the RNAPro study, to report template-poor targets separately, and to state where its own design choices depart from the published work. These goals are included because they affect how results are logged and presented, and not only how the code is written.
++
++\subsection{Development Methods}
++The project follows an experiment-driven, iterative method suited to research work. Development proceeds in stages, each producing a result that decides the next step. The first stage reproduces the baseline with RNAPro's template pool, so that all later comparisons are made against our own reproduced number. The second stage builds the candidate generators one at a time and evaluates each alone, which shows which methods find useful templates and on which kinds of target. The third stage builds the feature set and trains the selector, first with a simple heuristic picker and then with the learned model. The fourth stage runs the language-model comparison under fixed conditions. In every stage, hyperparameters and thresholds are tuned on validation data and the test split is touched once at the end.
++
++We considered two alternatives to this approach. The first was to retrain or modify the RNAPro model itself, for instance by adding the new templates to the training pool. This would let the model adapt to the new template distribution but would require compute we do not have, and it would make it impossible to separate the effect of template choice from the effect of retraining, so it was not adopted. The second was a purely heuristic combination of search methods, such as taking the top hit from each. We keep this as the simple heuristic picker in the evaluation, because it is a necessary comparison point, but we do not rely on it, since the finding that different methods succeed on different targets suggests a fixed rule cannot adapt to each RNA. The learned selector was chosen because it can use features such as agreement between methods and coverage of the target length to decide which candidates to trust case by case. The learning component follows standard supervised practice, with labels from TM-align, a train, validation, and test protocol, and reporting of confidence intervals, and the structural methods and metrics follow the cited work \cite{kalvari2018,nawrocki2013,steinegger2017,leerna}.
++
++\section{System Architecture}
++The system is partitioned into six components. Five run in sequence from a target RNA to a final score, and the sixth is the data layer that all of them read from.
++
++\begin{itemize}
++  \item \textbf{Data and split management.} This is a split-aware structure repository. It holds the PDB structures, MSAs, and stored TM-align labels, and it defines the temporal split and the structural-similarity split. Every read is filtered by the split rule, so a component can only see structures that are legal for the target it is working on.
++  \item \textbf{Candidate generation.} Given a target RNA, this component runs independent search methods against the legal structures and returns one pooled list of candidate templates. Each candidate records the method that found it and that method's native score and rank.
++  \item \textbf{Template selector.} This component has two parts. A feature builder converts each candidate into a numeric description. A ranking or regression model then predicts each candidate's TM-align, and the selector ranks the candidates, removes near-duplicates, and keeps an ordered set of at most five templates. If no candidate passes a threshold tuned on validation data, it returns the zero-valued template.
++  \item \textbf{Label generation.} Used only in training and validation, this component computes TM-align with US-align between each candidate and the target's experimental structure. These values are the selector's training labels.
++  \item \textbf{Prediction backbone.} This is the existing RNAPro model. It receives the sequence, MSA, language-model features, and the ordered templates, and produces five C1$'$ structures, with prediction $k$ using the top-$k$ templates.
++  \item \textbf{Evaluation.} This component scores the predictions against the experimental structures with US-align, takes the best of five per target, and aggregates results across targets, subsets (with template-poor targets reported separately), and experimental conditions.
++\end{itemize}
++
++Only the candidate generation, template selector, label generation, and evaluation components are newly developed. The data layer is new in how it applies the split rule, but it holds existing data. The prediction backbone is a pre-existing part of the system, so it is described only as far as needed to explain how it connects to the new parts. Its interface is narrow: it accepts a sequence, its MSA and language-model features, and up to five templates, and returns coordinates. The new components never reach inside it, and this boundary is what lets any change in accuracy be attributed to template choice. The language-model module is the one exception, because the language-model comparison requires swapping it, so it is exposed as an interchangeable slot with a defined interface.
++
++The pipeline has three data paths that share components.
++
++\begin{itemize}
++  \item \textbf{Backbone training path.} RNAPro is trained following the published recipe, on the fixed pool of 45 templates per target (40 from MMseqs and 5 from the first-place Kaggle method), with the zero-valued template used when no suitable template exists. This path does not involve the selector, and its training distribution is unchanged.
++  \item \textbf{Selector training path.} For targets in the training and validation splits, candidates and their features are paired with TM-align labels from the label generation component. The selector is trained on the training split, and its hyperparameters and threshold are tuned on validation.
++  \item \textbf{Inference path.} A target enters candidate generation and leaves as a list of candidates. The selector attaches features, reduces the list to an ordered set of at most five template identifiers (or a flag requesting the zero-valued template), and the backbone produces five structures. Evaluation compares these with the experimental structure. The test split is used once on this path.
++\end{itemize}
++
++The selector training path and the inference path share the same candidate generation and feature construction, so the selector is trained on the same kind of input it will see at inference.
++
++We chose this decomposition for three reasons. First, it follows the natural stages of the problem, which are finding, describing, choosing, predicting, and scoring, so each component has one responsibility and can be tested separately. Second, it places the boundary between existing and new code at the backbone, which keeps the experiment controlled. Third, it lets every condition in the evaluation protocol, from MMseqs2 alone to the learned selector, be produced by changing one component while the rest stays fixed.
++
++We considered two alternatives. One was a single end-to-end model that learns to retrieve and weight templates inside the network. This was rejected because it would require retraining the backbone, which would blur the effect of template choice with the effect of retraining. The other was to merge search and selection into one component that returns only the best hits. This was rejected because it hides per-method information (native score, rank, and agreement between methods) that the selector uses as features.
++
++The architecture is shown in Figure~\ref{fig:architecture}.
++
++% \begin{figure}[!h]
++% \centering
++% TODO: draw the diagram and insert it here. It should show the six
++% components, the split-aware repository, and the three data paths.
++% \includegraphics[width=\textwidth]{figures/system-architecture.png}
++% \caption{System architecture showing the six components, the split-aware repository, and the three data paths.}
++% \label{fig:architecture}
++% \end{figure}
++
++\subsection{Subsystem Architecture}
++The candidate generation subsystem merits closer description, because it is made up of several independent parts. It consists of a set of template source modules, one for each search method, and a pooling module. The sources are sequence similarity (covering MMseqs2 and Rfam with Infernal), family lookup, language-model embedding similarity, secondary-structure-aware similarity, motif or local search, and the first-place Kaggle search as a baseline source. Each source takes the same input, a target and the legal structure database, and returns candidates in the same format, each carrying the identifier of the source structure, a residue mapping to the target, the method name, and that method's native score and rank. Sources do not call each other and share no state, which allows them to run independently and in parallel. The pooling module merges the outputs, recognizes when two methods have returned the same template, and records how many methods agreed. This agreement count is one of the selector's features.
++
++The selection subsystem also contains distinct parts. A scoring module applies the trained ranking or regression model to each candidate's feature vector. A deduplication module then computes TM-align between high-scoring candidates and drops those that are near copies of a better-scored one, so the five kept templates are diverse and do not repeat the same fold. A thresholding module compares the top score with the value tuned on validation data and decides whether to use the zero-valued template instead. These three modules run in a fixed order, and each can be switched off for ablation, which lets us report the effect of deduplication and of the fallback separately.
++
++\section{Architectural Strategies}
++
++\subsection{Fixed Backbone, Changes at Inference Only}
++The central strategy is to leave RNAPro's architecture, training recipe, and training template pool unchanged, and to place all new work at inference. This supports the goal of controlled comparison, because the training distribution is identical across all conditions, so a gain can be attributed to template choice. It also fits the compute constraint, since training the selector on precomputed features and labels is far cheaper than retraining a model of this size. The main alternative was to enlarge the training pool with the new templates so the model could adapt to them. That might yield higher accuracy, but it needs resources we do not have and removes the clean attribution, so we did not adopt it. The cost of the chosen strategy is that the backbone may be better suited to the distribution of templates it was trained on than to those our selector picks. We accept this and note it as a limitation.
++
++\subsection{Common Interface for Interchangeable Components}
++The second strategy is to hide each template source and each language model behind a common interface. Every source implements the same operation, returning candidates in the shared format for a given target, and every language-model adapter exposes the same single and pair representations to the backbone. The reasoning is that the set of methods and models is expected to change after pilot experiments, and a new one should be addable without touching the pipeline. We considered writing each method directly into the pipeline, which would have been faster at first, but it would make ablations error-prone and would make it hard to evaluate one method alone. This approach resembles the strategy pattern, in which several algorithms with the same signature can be substituted at run time. For language models without native pair-level outputs, the adapter is where pair features are derived, so that decision stays in one place and is reported as our own design choice.
++
++\subsection{Split Enforcement at the Data Access Layer}
++The third strategy is to enforce the temporal or structural-similarity split inside the structure repository and not in the calling code. Every read takes a target and returns only structures legal for it, so no search, labeling step, or training step can see a forbidden structure by accident. The alternative was to filter results after retrieval, which is simpler to write but risks leakage whenever a new component forgets the filter. A single enforcement point is easier to verify and audit, and since the validity of the whole evaluation depends on it, we judged the small loss of flexibility acceptable. Test targets are handled by the same layer and are released for scoring only once.
++
++\subsection{Precomputed and Cached Labels and Features}
++The fourth strategy addresses cost. TM-align labels for all candidates against all training and validation targets are expensive, and candidate searches are slow. Both are computed once, stored with the software versions and settings that produced them, and reused across all selector experiments. The alternative of recomputing on demand would make each experiment slow and make results harder to reproduce. The trade-off is storage and the need to invalidate stored results when a source or setting changes, which we handle by keying stored results on a record of the producing configuration.
++
++\subsection{Error Detection and Recovery}
++The final strategy concerns failure handling. A search method may fail or return nothing for a given target, and the design treats this as a normal case. The pooling module accepts whatever the other sources return, and the selector includes the finding method as a feature, so a missing source degrades the candidate list without stopping the run. If the pool is empty, or the top score falls below the threshold, the system uses the zero-valued template, which is the same behavior as RNAPro when no suitable template exists. Failures are logged with the target and source identifiers so they can be reported when results are analyzed. The alternative of stopping on any failure was rejected because a long evaluation run should not be lost to one unusual sequence.
++
++\section{Domain Model/Class Diagram}
++The domain model centers on a small number of classes that mirror the data flowing through the pipeline. A \texttt{Target} class represents an RNA to be predicted and holds its sequence, release-date cutoff, and, when available, its experimental structure. A \texttt{Candidate} class represents a possible template and holds the source structure identifier, the residue mapping to the target, the name of the method that found it, that method's native score and rank, and a feature vector once one has been built. A \texttt{SelectionResult} class holds an ordered list of at most five template identifiers, or a flag for the zero-valued template.
++
++Candidate generation is modeled with an abstract \texttt{TemplateSource} class that declares a single search operation taking a \texttt{Target} and a \texttt{StructureRepository}. Concrete subclasses implement it for sequence similarity, family lookup, embedding similarity, secondary-structure-aware similarity, motif search, and the Kaggle baseline. A \texttt{CandidatePool} class aggregates the outputs of the sources and computes the agreement count. The \texttt{StructureRepository} class owns access to structures and alignments, and its read operations all take a \texttt{Target} so the split rule is applied on every call. A \texttt{FeatureBuilder} class creates feature vectors from candidates, and a \texttt{LabelStore} class holds the stored TM-align values. The \texttt{Selector} class has a scoring model, a deduplication step, and a threshold, and it produces a \texttt{SelectionResult} from a \texttt{CandidatePool}.
++
++The prediction side is modeled with a \texttt{PredictionBackbone} class that wraps RNAPro and accepts a \texttt{Target}, a \texttt{SelectionResult}, and a \texttt{LanguageModelAdapter}. \texttt{LanguageModelAdapter} is an abstract class with concrete subclasses for RNet2, AIDO.RNA, and any later models, and each exposes single and pair representations. An \texttt{Evaluator} class compares predicted structures with experimental ones through US-align and aggregates results by condition and by subset, including the template-poor subset. The relationships are as follows. \texttt{CandidatePool} aggregates \texttt{Candidate} objects, \texttt{Selector} uses \texttt{FeatureBuilder} and \texttt{LabelStore} during training, and \texttt{PredictionBackbone} depends on \texttt{LanguageModelAdapter}. \texttt{TemplateSource} and \texttt{StructureRepository} are linked by dependency, since every source reads through the repository.
++
++% \begin{figure}[!h]
++% \centering
++% % TODO: draw the class diagram from the description above and insert it here.
++% \includegraphics[width=\textwidth]{figures/class-diagram.png}
++% \caption{Domain model and class diagram of the template-selection system.}
++% \label{fig:classdiagram}
++% \end{figure}
++
++\section{Policies and Tactics}
++For tool choices, we plan to use Python, since the backbone and its public release are built on PyTorch, and to use the established command-line tools for search and scoring, namely MMseqs2, Infernal with Rfam, and US-align. These choices keep us close to the cited work, which makes our baseline reproduction more faithful. The selector will begin with a simple model from a standard machine learning library, and a more complex one will be adopted only if validation results justify it. If any of these choices change during development, the change will be reported.
++
++For engineering trade-offs, we favor reproducibility over speed. Random seeds are fixed, software versions and tool settings are recorded with every stored result, and the training schedule is held constant across all compared conditions. Coding conventions are modest: a consistent style checked automatically, short functions with a single purpose, and descriptive names that match the terms used in this report, so that code can be traced to the design.
++
++For requirements traceability, each experimental condition in the evaluation protocol maps to a named configuration that selects a template source set, a selector mode, and a language model. This mapping lets any reported number be traced to the configuration that produced it. For testing, we plan unit tests for each template source against a few sequences with known answers, a test that the structure repository never returns a structure released after a target's cutoff, a test that the selector falls back to the zero-valued template when the pool is empty, and a check that our reproduced baseline is in a plausible range relative to the published figures before later results are trusted. The leakage test matters most, because the validity of the whole evaluation depends on it.
++
++For maintenance, adding a new template source or language model requires implementing the shared interface and registering a configuration, with no change to the pipeline. The source code is organized into directories matching the components: one for template sources, one for the structure repository, one for features and labels, one for the selector, one for the backbone wrapper and language-model adapters, and one for evaluation, with configurations and stored results kept separately. The deliverables are built by running the stages in order. The first reproduces the baseline, the second generates and caches candidates and labels, the third trains and tunes the selector on validation data, the fourth runs the language-model comparison, and the last scores the test split once.
++
++\clearpage
++\chapter{Implementation and Test Cases}
++For each chapter, provide a paragraph of introduction and at the end, a paragraph of conclusions. (Not the programming code but the algorithmic and procedural details especially related to the hidden/ backend algorithms that are not covered in the design)
++\section{Implementation}
++Whatever implementation that you have done so far, please elaborate here.
++Give clear details of the algorithms that were implemented along with the platform and the APIs which were used. 
++\textcolor{red}{NOTE: For FYP-1, this chapter can be changed to description of prototype developed.}
++\subsection{Implementation of First Component/Algorithm}
++Write the implementation of the first component of your system here.
++\section{Test case Design and description}
++\textcolor{red}{This section will be added in FYP-II.} Summarize the common attributes of test cases. This may include input constraints that must be true for every input in the set of associated test cases, any shared environmental needs, any shared special procedural requirements, and any shared case dependencies. The following scheme is recommended for describing test cases in detail. The Sample test case is provided in table \ref{tab:3}.
++\begin{table}[!ht]
++\caption{Sample Test case No.1}
++
++\centering
++\begin{tabular}{|llll|}
++\hline
++\multicolumn{4}{|c|}{\textbf{\textless{}Software Component Name\textgreater{}}} \\ \hline
++\multicolumn{4}{|c|}{\textbf{\textless{}Reference\textgreater{}}} \\ \hline
++\multicolumn{1}{|l|}{\textbf{Test Case ID:}} &
++  \multicolumn{1}{l|}{\textit{Reference Number}} &
++  \multicolumn{1}{l|}{\textbf{QA Test Engineer:}} &
++  \textit{Name of personnel} \\ \hline
++\multicolumn{1}{|l|}{\textbf{Test case Version:}} &
++  \multicolumn{1}{l|}{\textit{Version number}} &
++  \multicolumn{1}{l|}{\textbf{Reviewed By:}} &
++  \textit{Testing Team lead} \\ \hline
++\multicolumn{1}{|l|}{\textbf{Test Date:}} &
++  \multicolumn{1}{l|}{\textit{Date}} &
++  \multicolumn{1}{l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Use Case \\ Reference(s):\end{tabular}}} &
++  \textit{Relation to use cases} \\ \hline
++\multicolumn{1}{|l|}{\textbf{Revision History:}} &
++  \multicolumn{3}{l|}{\textit{Refer to previous test   case identity (if any)}} \\ \hline
++\multicolumn{1}{|l|}{\textbf{Objective:}} &
++  \multicolumn{3}{l|}{\textit{Need and   scope of the testing}} \\ \hline
++\multicolumn{1}{|l|}{\textbf{\begin{tabular}[c]{@{}l@{}}Product/Ver/\\ Module:\end{tabular}}} &
++  \multicolumn{3}{l|}{\textit{Refer to overall system being built and the place of this test case in it.}} \\ \hline
++\multicolumn{1}{|l|}{\textbf{Environment:}} &
++  \multicolumn{3}{l|}{\textit{Necessary and desired properties of the test environment.}} \\ \hline
++\multicolumn{1}{|l|}{\textbf{Assumptions:}} &
++  \multicolumn{3}{l|}{\textit{Assumptions that might affect the testing process.}} \\ \hline
++\multicolumn{1}{|l|}{\textbf{Pre-Requisite:}} &
++  \multicolumn{3}{l|}{\textit{Necessary condition that  needs to be fulfilled before the test case.}} \\ \hline
++\multicolumn{1}{|l|}{\textbf{Step No.}} &
++  \multicolumn{1}{l|}{\textbf{Execution   description}} &
++  \multicolumn{2}{l|}{\textbf{Procedure result}} \\ \hline
++\multicolumn{1}{|l|}{} &
++  \multicolumn{1}{l|}{\textit{Events being tested.}} &
++  \multicolumn{2}{l|}{\textit{Mention software response.}} \\ \hline
++\multicolumn{4}{|l|}{\textbf{Comments:}} \\ \hline
++\multicolumn{4}{|c|}{\textbf{Passed      Failed     Not Executed}} \\ \hline
++\end{tabular}
++\label{tab:3}
++\end{table}
++\section{Test Metrics}
++Summarize here the common ground of attributes of test case metrics as explained in Table \ref{tab:4}.
++\begin{table}[!ht]
++\centering
++\caption{Sample Test case Matric.No.1}
++
++\begin{tabular}{|l|l|}
++\hline
++\textbf{Metric}                      & \textbf{Purpose}                                                                                                        \\ \hline
++\textbf{Number of Test Cases}        & \begin{tabular}[c]{@{}l@{}}Total number of test cases that you have\\ developed for  your system.\end{tabular}          \\ \hline
++\textbf{Number of Test Cases Passed} & The number of test cases that successfully passed                                                                       \\ \hline
++\textbf{Number of Test Cases Failed} & The number of test cases that failed                                                                                    \\ \hline
++\textbf{Test Case Defect Density}    & \begin{tabular}[c]{@{}l@{}}(No of test cases failed * 100) \\ No of test cases executed\end{tabular}                    \\ \hline
++\textbf{Test Case Effectiveness}     & \begin{tabular}[c]{@{}l@{}}No of defects detected using test cases *100\\ Total number of defects detected\end{tabular} \\ \hline
++\textbf{Traceability Matrix} &
++  \begin{tabular}[c]{@{}l@{}}Traceability is the ability to determine that each\\  the feature has a source in requirements and each \\ requirement has a corresponding implemented feature.\end{tabular} \\ \hline
++\end{tabular}
++\label{tab:4}
++\end{table}
++\subsection{Sample Test case Metric.No.2}
++Similar to the above table, add here for test metrics 2,3,4.\\
++\clearpage
++\chapter{User Manual}
++\textcolor{red}{This chapter will be added in FYP-II.} Design a complete user manual of your application and add that in this chapter.
++\textcolor{red}{NOTE: This Chapter is optional for Research projects but compulsory for Development projects.}\\
++\clearpage
++\chapter{Experimental Results and Discussion}
++This chapter will be added in FYP-II. Give proper analysis and discussion of experimental results (in plain English text) along with tables of results.  For each chapter provide a paragraph of introduction and in the end a paragraph of conclusions.\\
++\textcolor{red}{NOTE: This Chapter is optional for Development projects but compulsory for Research projects.}
++
++\clearpage
++\chapter{Conclusions}
++\section{aa}
++\subsection{dfs}
++\subsubsection{dsd}
++{\bf This chapter is mandatory}.  
++Give conclusions and summary of the work done.  What were your findings and what were the results?  Discuss in detail whether the scope of your project was entirely covered or not and whether the objectives of the project were met or not.  What challenges did you face and what has been left out and why.\\
++Sum up all the conclusions of all the chapters here to make a final conclusion chapter.  Do not repeat any text, just summarize it in different words. Give recommendations for future work also.\\
++\textbf{For FYP-1 it is mandatory to list down a plan of the work to be done for FYP-2.}
++
++{
++\bibliographystyle{ieeetr}
++\bibliography{fypbib} %specify your .bib file here
++}
++%ADD APPENDICES IF REQUIRED OTHERWISE COMMENT IT OUT
++
++
++\section{Equations}
++Make sure you use the math environment for writing equations.  Again, make sure you do not hard code equation numbers.  Use label and ref commands of Latex to number them and reference them.  Here is an example of (\ref{eq:energy})
++\begin{equation}\label{eq:energy}
++E = mc^2
++\end{equation}
++Note, how the equation is referenced by its equation number within brackets.  
++
++\section{Figures}
++To insert a figure, you can use the following code as template.  Here the figure is referenced using ref command of Latex.  So Figure \ref{fig:fast} is the FAST logo.  DO NOT HARD CODE FIGURE NUMBERS.  Let Latex manage them for you.
++
++\begin{figure}[htbp]
++    \centering
++    \includegraphics[width=1in]{Figures/fastlogo.png}
++    \caption{\textbf{FAST Logo}}
++    \label{fig:fast}
++\end{figure}
++
++\section{Tables}
++Note how tables can be added in Latex.  Also, make sure you use label and ref commands to define and use table numbers.  You can use Table \ref{tbl:SomeTable} as a template to make tables, add captions to them and reference them.  DO NOT HARD CODE TABLE NUMBERS.  Let Latex manage their numbering for you.
++
++If you are having problems in managing Latex tables, you may use Lyx \url{https://www.lyx.org/}. 
++
++
++\begin{table}[hbt]
++
++\begin{center}
++\caption{\label{tbl:SomeTable} \textbf{Give a Caption to the Table.}}
++\begin{tabular}{|l|c|c|} 
++\hline
++\textbf{No.}&\textbf{Column 1}&\textbf{Column 2}\\
++\hline
++1.&Some data&More data\\
++\hline
++2.&Some values&More values\\
++\hline
++\end {tabular}
++
++\end{center}
++
++\end{table}
++
++\section{Pseudo Code}
++When you need to explain an existing algorithm of an algorithm you devised, then you should use pseudo code notation. Given below, algorithm  \ref{algo:one}, is an example. Note how the numbering is managed by the Latex itself.
++
++\begin{algorithm}[H]
++ \KwData{this text}
++ \KwResult{how to write algorithm with \LaTeX2e }
++ initialization\;
++ \While{not at end of this document}{
++  read current\;
++  \eIf{understand}{
++   go to next section\;
++   current section becomes this one\;
++   }{
++   go back to the beginning of current section\;
++  }
++ }
++ \caption{How to write algorithms}
++ \label{algo:one}
++\end{algorithm}
++
++\section{Code of Programming Languages}
++If you need to add C++, Java or any other programming language's code, then you can use ``listings'' package. Following is an example. Normally, the code is only added in the appendices to avoid clutter in the document.
++
++\begin{lstlisting}
++
++#include <stdio.h>
++#define N 10
++/* Block
++ * comment */
++
++int main()
++{
++    int i;
++
++    // Line comment.
++    puts("Hello world!");
++    
++    for (i = 0; i < N; i++)
++    {
++        puts("LaTeX is also great for programmers!");
++    }
++
++    return 0;
++}
++\end{lstlisting}
++
++\section{Recommendations for \LaTeX}
++Here we are providing you with only two Latex source files.  main.tex and fypbib.bib file. You can also start a project at \url{overleaf.com} and upload the zip file of this template there and share the Latex source between your group and supervisor.  This way all of you can work on the Latex files together online.
++
+ 
+-\end{document}
++\end{document}
+\ No newline at end of file
